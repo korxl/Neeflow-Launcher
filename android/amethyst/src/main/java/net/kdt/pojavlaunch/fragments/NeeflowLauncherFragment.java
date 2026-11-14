@@ -93,7 +93,7 @@ public class NeeflowLauncherFragment extends Fragment {
     public View onCreateView(@NonNull android.view.LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         webView = new WebView(requireContext());
         webView.setBackgroundColor(Color.rgb(11, 12, 15));
-        webView.setInitialScale(75);
+        webView.setInitialScale(100);
         webView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
@@ -443,6 +443,27 @@ public class NeeflowLauncherFragment extends Fragment {
                 return new JSONObject().put("path", path).put("entries", entries).toString();
             } catch (Exception exception) {
                 return error(exception.getMessage() == null ? "Не удалось прочитать папку Minecraft." : exception.getMessage()).toString();
+            }
+        }
+
+        @JavascriptInterface
+        public String openGameFolder(String relativePath) {
+            try {
+                String path = normalizeGamePath(relativePath);
+                File directory = resolveGamePath(path);
+                if (!directory.exists() && isLauncherFolder(path)) directory.mkdirs();
+                if (!directory.isDirectory()) return error("Папка Minecraft не найдена.").toString();
+                LauncherActivity activity = launcherActivity();
+                activity.runOnUiThread(() -> {
+                    try {
+                        Tools.openPath(activity, directory, false);
+                    } catch (Exception exception) {
+                        Toast.makeText(activity, "Не удалось открыть папку в приложении «Файлы».", Toast.LENGTH_LONG).show();
+                    }
+                });
+                return new JSONObject().put("ok", true).put("path", directory.getAbsolutePath()).toString();
+            } catch (Exception exception) {
+                return error(exception.getMessage() == null ? "Не удалось открыть папку Minecraft." : exception.getMessage()).toString();
             }
         }
 

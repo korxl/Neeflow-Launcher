@@ -834,7 +834,7 @@
       --radius:18px;
     }
     body {
-      zoom:.75;
+      zoom:1;
       background-color:#000;
       background-image:radial-gradient(ellipse at 77% 0%,rgba(var(--accent-rgb),.045),transparent 38%),linear-gradient(180deg,#000 0%,#020304 70%,#000 100%);
     }
@@ -1174,7 +1174,7 @@
 
       <section class="view hidden" data-section="files">
         <div class="page-head"><div class="eyebrow"><span class="eyebrow-line"></span>Хранилище</div><h1 class="page-title">Файлы лаунчера</h1><p class="page-subtitle">Просматривай настоящие папки игры, модов, ресурс-паков и скриншотов.</p></div>
-        <div class="folder-note"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>В Android-приложении это реальные файлы во внутренней папке .minecraft. Нажми папку, чтобы просмотреть содержимое; файлы откроются подходящим приложением. В веб-предпросмотре хранилище Android недоступно.</span></div>
+        <div class="folder-note"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>В Android-приложении кнопки открывают реальные папки .minecraft в системном приложении «Файлы». Если папки модов, ресурс-паков или скриншотов ещё нет, лаунчер создаст её. В веб-предпросмотре хранилище Android недоступно.</span></div>
         <input class="directory-input" type="file" webkitdirectory directory multiple data-directory-input aria-label="Выбрать папку">
         <div class="file-layout" style="margin-top:14px">
           <article class="card folder-card"><div class="folder-top"><div class="folder-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M3.5 7.5a2 2 0 0 1 2-2h5l2 2h5.9a2 2 0 0 1 2 2v8.9a2.1 2.1 0 0 1-2.1 2.1H5.6a2.1 2.1 0 0 1-2.1-2.1V7.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3.8 10h16.4" stroke="currentColor" stroke-width="1.6"/></svg></div><div><div class="folder-name">Папка игры</div><div class="folder-subtitle">Профили, версии и настройки</div></div></div><div class="folder-path" data-folder-label="game">Neeflow/.minecraft/</div><button class="button button-quiet" type="button" data-folder-select="game">Открыть папку игры</button></article>
@@ -1313,6 +1313,11 @@
         if (viewName === "settings" && nameInput) nameInput.value = username === "Guest" ? "" : username;
         if (viewName === "modpacks" && !modrinthLoaded) searchModrinth();
         if (viewName === "versions") loadOfficialMinecraftCatalog();
+        if (viewName === "files" && isNativeAndroid) {
+          const result = androidCall("openGameFolder", "");
+          if (!result || result.error) showToast(result && result.error ? result.error : "Не удалось открыть папку игры.");
+          else if (result.path) updateFolderLabel("game", `${result.path}/`);
+        }
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
 
@@ -2797,7 +2802,12 @@
       }
       document.querySelectorAll("[data-folder-select]").forEach((button) => button.addEventListener("click", async () => {
         const target = button.dataset.folderSelect;
-        if (isNativeAndroid) { renderGameFolder(gameFolderPaths[target] || ""); return; }
+        if (isNativeAndroid) {
+          const result = androidCall("openGameFolder", gameFolderPaths[target] || "");
+          if (!result || result.error) { showToast(result && result.error ? result.error : "Не удалось открыть папку игры."); return; }
+          if (result.path) updateFolderLabel(target, `${result.path}/`);
+          return;
+        }
         if (typeof window.showDirectoryPicker === "function") {
           try {
             const handle = await window.showDirectoryPicker({ mode: "read" });

@@ -2,6 +2,7 @@
 """Apply Neeflow branding and local-only login to the pinned Amethyst checkout."""
 
 from pathlib import Path
+import re
 import shutil
 import sys
 
@@ -96,6 +97,11 @@ def main() -> None:
         ('<string name="login_online_login_label">Login</string>', '<string name="login_online_login_label">Continue offline</string>'),
         ('<string name="error_fatal">Amethyst has unexpectedly crashed</string>', '<string name="error_fatal">NeeflowLauncher has unexpectedly crashed</string>'),
     ])
+    localized_app_name = re.compile(r'(<string name="(?:app_name|app_short_name)"(?:\s+[^>]*)?>).*?(</string>)', re.DOTALL)
+    for localized_values in (app_root / "src/main/res").glob("values-*/strings.xml"):
+        localized_text = localized_values.read_text(encoding="utf-8")
+        localized_text = localized_app_name.sub(r"\1NeeflowLauncher\2", localized_text)
+        localized_values.write_text(localized_text, encoding="utf-8")
 
     auth_selector = app_root / "src/main/java/net/kdt/pojavlaunch/fragments/SelectAuthFragment.java"
     edit_file(auth_selector, [
