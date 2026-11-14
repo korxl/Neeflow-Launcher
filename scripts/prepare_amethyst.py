@@ -2,6 +2,7 @@
 """Apply Neeflow branding and local-only login to the pinned Amethyst checkout."""
 
 from pathlib import Path
+import shutil
 import sys
 
 LEGACY_CLIENT_ID = "00000000402b5328"
@@ -33,6 +34,19 @@ def main() -> None:
     app_root = source_root / "app_pojavlauncher"
     if not (app_root / "build.gradle").is_file():
         raise SystemExit(f"Amethyst source not found at {source_root}")
+
+    neeflow_assets = app_root / "src/main/assets/neeflow"
+    (neeflow_assets / "assets").mkdir(parents=True, exist_ok=True)
+    shutil.copy2(repo_root / "index.html", neeflow_assets / "index.html")
+    for asset_name in ("alex.png", "steve.png"):
+        shutil.copy2(repo_root / "assets" / asset_name, neeflow_assets / "assets" / asset_name)
+
+    fragment_source = repo_root / "android/amethyst/src/main/java/net/kdt/pojavlaunch/fragments/NeeflowLauncherFragment.java"
+    fragment_target = app_root / "src/main/java/net/kdt/pojavlaunch/fragments/NeeflowLauncherFragment.java"
+    if not fragment_source.is_file():
+        raise SystemExit(f"Neeflow launcher fragment not found at {fragment_source}")
+    fragment_target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(fragment_source, fragment_target)
 
     gradle_file = app_root / "build.gradle"
     gradle_text = gradle_file.read_text(encoding="utf-8")
@@ -89,6 +103,20 @@ def main() -> None:
     local_layout = app_root / "src/main/res/layout/fragment_local_login.xml"
     edit_file(local_layout, [
         ('android:inputType="textEmailAddress"', 'android:inputType="textPersonName|textNoSuggestions"'),
+    ])
+
+    launcher_activity = app_root / "src/main/java/net/kdt/pojavlaunch/LauncherActivity.java"
+    edit_file(launcher_activity, [
+        ('import net.kdt.pojavlaunch.fragments.MainMenuFragment;\n', 'import net.kdt.pojavlaunch.fragments.MainMenuFragment;\nimport net.kdt.pojavlaunch.fragments.NeeflowLauncherFragment;\n'),
+        ('.add(R.id.container_fragment, MainMenuFragment.class, null, "ROOT").commit();', '.add(R.id.container_fragment, NeeflowLauncherFragment.class, null, "ROOT").commit();'),
+        ('        bindViews();\n        checkNotificationPermission();', '        bindViews();\n        mAccountSpinner.setVisibility(View.GONE);\n        mSettingsButton.setVisibility(View.GONE);\n        checkNotificationPermission();'),
+        ('    public void onBackPressed() {\n        MicrosoftLoginFragment fragment = (MicrosoftLoginFragment) getVisibleFragment(MicrosoftLoginFragment.TAG);', '    public void onBackPressed() {\n        Fragment root = getSupportFragmentManager().findFragmentByTag("ROOT");\n        if(root instanceof NeeflowLauncherFragment && root.isVisible()) {\n            ((NeeflowLauncherFragment) root).handleBack();\n            return;\n        }\n        MicrosoftLoginFragment fragment = (MicrosoftLoginFragment) getVisibleFragment(MicrosoftLoginFragment.TAG);'),
+        ('    private void bindViews(){\n        mFragmentView = findViewById(R.id.container_fragment);\n        mSettingsButton = findViewById(R.id.setting_button);\n        mAccountSpinner = findViewById(R.id.account_spinner);\n        mProgressLayout = findViewById(R.id.progress_layout);\n    }\n}', '    private void bindViews(){\n        mFragmentView = findViewById(R.id.container_fragment);\n        mSettingsButton = findViewById(R.id.setting_button);\n        mAccountSpinner = findViewById(R.id.account_spinner);\n        mProgressLayout = findViewById(R.id.progress_layout);\n    }\n\n    public net.kdt.pojavlaunch.value.MinecraftAccount getNeeflowSelectedAccount() {\n        return mAccountSpinner == null ? null : mAccountSpinner.getSelectedAccount();\n    }\n\n    public boolean selectNeeflowLocalAccount(String username) {\n        return mAccountSpinner != null && mAccountSpinner.selectLocalAccount(username);\n    }\n\n    public void launchNeeflowGame(String profileId, String username) {\n        if(!selectNeeflowLocalAccount(username)) {\n            Toast.makeText(this, "Укажи корректное имя локального игрока.", Toast.LENGTH_LONG).show();\n            return;\n        }\n        LauncherProfiles.load();\n        MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(profileId);\n        if(profile == null || profile.lastVersionId == null || "Unknown".equals(profile.lastVersionId)) {\n            Toast.makeText(this, R.string.error_no_version, Toast.LENGTH_LONG).show();\n            return;\n        }\n        LauncherPreferences.DEFAULT_PREF.edit()\n                .putString(LauncherPreferences.PREF_KEY_CURRENT_PROFILE, profileId)\n                .apply();\n        ExtraCore.setValue(ExtraConstants.LAUNCH_GAME, true);\n    }\n}')
+    ])
+
+    account_spinner = app_root / "src/main/java/com/kdt/mcgui/mcAccountSpinner.java"
+    edit_file(account_spinner, [
+        ('    public MinecraftAccount getSelectedAccount(){\n        return mSelectecAccount;\n    }', '    public MinecraftAccount getSelectedAccount(){\n        return mSelectecAccount;\n    }\n\n    public boolean selectLocalAccount(String username) {\n        if(username == null || !username.matches("^[A-Za-z0-9_]{3,16}$")) return false;\n        int position = mAccountList.indexOf(username);\n        if(position > 0) {\n            pickAccount(position);\n            performLogin(mSelectecAccount);\n            return mSelectecAccount != null && username.equals(mSelectecAccount.username);\n        }\n        ExtraCore.setValue(ExtraConstants.MOJANG_LOGIN_TODO, new String[]{username, ""});\n        return mSelectecAccount != null && username.equals(mSelectecAccount.username);\n    }')
     ])
 
     java_root = app_root / "src/main/java"

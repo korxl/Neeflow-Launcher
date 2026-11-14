@@ -418,8 +418,8 @@
     .skin-entry .skin-swatch { display:block; }
     .skin-remove { position:absolute; top:7px; right:7px; z-index:1; display:grid; width:23px; height:23px; place-items:center; border:1px solid var(--line); border-radius:8px; background:var(--panel-strong); color:var(--muted); font-size:14px; cursor:pointer; }
     .skin-remove:hover { color:#ff9d9d; border-color:rgba(255,100,100,.4); }
-    .skin-swatch[data-skin-swatch="steve"] { background-image:url("/assets/steve.png"); }
-    .skin-swatch[data-skin-swatch="alex"] { background-image:url("/assets/alex.png"); }
+    .skin-swatch[data-skin-swatch="steve"] { background-image:url("assets/steve.png"); }
+    .skin-swatch[data-skin-swatch="alex"] { background-image:url("assets/alex.png"); }
     .skin-swatch img { width:100%; height:100%; object-fit:cover; image-rendering:pixelated; }
     .skin-option-name { font-size:11px; font-weight:700; }
     .skin-option-meta { margin-top:4px; color:var(--muted); font-size:9px; }
@@ -942,7 +942,7 @@
               <section class="ingame-settings-panel" data-ingame-settings hidden aria-label="Настройки игрового HUD">
                 <div class="ingame-settings-head"><div><div class="ingame-settings-kicker">NEEFLOW · HUD</div><h3>Настройки в игре</h3></div><button type="button" class="hud-close-button" data-hud-settings-close aria-label="Закрыть настройки">×</button></div>
                 <div class="ingame-settings-fields">
-                  <label><span class="field-label" for="hud-resolution">РАЗРЕШЕНИЕ</span><select class="settings-select" id="hud-resolution" data-setting-select="resolution"><option value="854x480">854 × 480 · быстро</option><option value="960x540">960 × 540</option><option value="1280x720">1280 × 720</option><option value="1600x900">1600 × 900</option><option value="1920x1080">1920 × 1080</option><option value="auto">По устройству</option></select></label>
+                  <label><span class="field-label" for="hud-resolution">МАСШТАБ РЕНДЕРА</span><div class="range-wrap runtime-setting-control"><input id="hud-resolution" type="range" min="25" max="100" step="5" value="100" data-runtime-setting="resolutionRatio"><span class="range-value" data-runtime-setting-value>100%</span></div></label>
                   <div><label class="field-label" for="hud-sensitivity">ЧУВСТВИТЕЛЬНОСТЬ ОБЗОРА</label><div class="range-wrap"><input id="hud-sensitivity" type="range" min="20" max="200" step="10" value="100" data-control-sensitivity><span class="range-value" data-control-sensitivity-value>100%</span></div></div>
                   <label><span class="field-label" for="hud-layout">РАСКЛАДКА КНОПОК</span><select class="settings-select" id="hud-layout" data-hud-preset><option value="classic">Классика</option><option value="compact">Компактная</option><option value="left">Левая рука</option></select></label>
                   <button class="button button-quiet small-button" type="button" data-hud-edit-toggle>Переключить редактор кнопок</button>
@@ -950,7 +950,7 @@
                 <div class="ingame-settings-note">Настройки сохраняются на устройстве. Реальную игру этот веб-прототип не запускает.</div>
               </section>
             </div>
-            <div class="control-actions"><button class="button button-primary" type="button" data-add-control="button">＋ Добавить кнопку</button><button class="button button-quiet" type="button" data-add-control="joystick">＋ Джойстик</button><button class="button button-quiet" type="button" data-save-controls>Сохранить раскладку</button><button class="button button-quiet" type="button" data-reset-controls>Сбросить</button></div>
+            <div class="control-actions"><button class="button button-primary" type="button" data-add-control="button">＋ Добавить кнопку</button><button class="button button-quiet" type="button" data-add-control="joystick">＋ Джойстик</button><button class="button button-quiet" type="button" data-save-controls>Сохранить раскладку</button><button class="button button-quiet" type="button" data-reset-controls>Сбросить</button><button class="button button-quiet" type="button" data-native-controls>Настроить реальные кнопки в игре</button></div>
           </article>
           <article class="card control-options">
             <div class="control-settings-heading"><div><div class="eyebrow"><span class="eyebrow-line"></span>Профиль управления</div><h2>Настройка раскладки</h2><p>Собери удобное управление для игры на сенсорном экране.</p></div><span class="control-save-state" data-control-save-state>Локально</span></div>
@@ -997,13 +997,14 @@
             <button class="theme-option" type="button" data-theme-option="light"><span class="theme-swatch light"></span><span>Светлая</span></button>
           </div></article>
           <article class="card setting-card"><h2>Сенсорное управление</h2><p>Настрой экранные кнопки, виртуальный джойстик, прозрачность и положение элементов.</p><button class="button button-quiet small-button" type="button" data-view-button="controls">Открыть редактор управления</button></article>
-          <article class="card setting-card"><h2>Локальный профиль</h2><p>Укажи ник, который будет использоваться в игре. Microsoft-аккаунт не нужен.</p><label class="field-label" for="nickname">ИГРОВОЙ НИК</label><div class="input-row"><input class="text-input" id="nickname" name="nickname" type="text" maxlength="16" autocomplete="nickname" placeholder="Например, Neeflow" aria-describedby="nickname-help"><button class="button button-primary save-button" type="button" data-save-name>Сохранить</button></div><div class="helper" id="nickname-help">До 16 символов. Только латинские буквы, цифры и подчёркивание.</div><div class="local-note"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 6v5.5c0 5-3.4 8-8 9.5-4.6-1.5-8-4.5-8-9.5V6l8-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Профиль сохраняется только в браузере. Для реального входа на серверы понадобится добавить поддержку аккаунтов и проверить требования конкретного сервера.</span></div></article>
+          <article class="card setting-card"><h2>Локальный профиль</h2><p>Укажи ник, который будет использоваться в игре. Microsoft-аккаунт не нужен.</p><label class="field-label" for="nickname">ИГРОВОЙ НИК</label><div class="input-row"><input class="text-input" id="nickname" name="nickname" type="text" maxlength="16" autocomplete="nickname" placeholder="Например, Neeflow" aria-describedby="nickname-help"><button class="button button-primary save-button" type="button" data-save-name>Сохранить</button></div><div class="helper" id="nickname-help">До 16 символов. Только латинские буквы, цифры и подчёркивание.</div><div class="local-note"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 6v5.5c0 5-3.4 8-8 9.5-4.6-1.5-8-4.5-8-9.5V6l8-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>В веб-версии ник хранится в браузере. Локальный профиль не авторизует на серверах, требующих аккаунт Microsoft.</span></div></article>
           <article class="card setting-card"><h2>О Neeflow</h2><p>Android-оболочка Neeflow с каталогом версий, локальными настройками и предпросмотром HUD.</p><div class="empty-row"><div class="empty-symbol"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m4.2 7.7 7.8 4.4 7.8-4.4M12 12.1V21" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div><div class="empty-title">Предварительный макет</div><div class="empty-caption">Minecraft Java и Java runtime пока не входят в эту сборку.</div></div></div></article>
           <article class="card setting-card"><h2>Пароль профиля</h2><p>Необязательный пароль локального профиля.</p><label class="field-label" for="profile-password">НОВЫЙ ПАРОЛЬ</label><input class="text-input" id="profile-password" type="password" autocomplete="new-password" minlength="6" placeholder="Минимум 6 символов"><div class="settings-field"><label class="field-label" for="profile-password-confirm">ПОВТОРИ ПАРОЛЬ</label><input class="text-input" id="profile-password-confirm" type="password" autocomplete="new-password" minlength="6" placeholder="Ещё раз для проверки"></div><div class="password-status" data-password-status>Пароль не установлен</div><div class="inline-actions"><button class="button button-primary small-button" type="button" data-password-save>Установить пароль</button><button class="button button-quiet small-button" type="button" data-password-remove>Удалить</button></div><div class="helper">В макете сохраняется только контрольный хэш в этом браузере. Это не пароль Microsoft и не защита файлов Android.</div></article>
-          <article class="card setting-card"><h2>Java и JVM</h2><p>Профиль среды выполнения для будущего запуска Minecraft Java.</p><div class="settings-field"><label class="field-label" for="java-version-select">ВЕРСИЯ JAVA · ДО 25</label><select class="settings-select" id="java-version-select" data-setting-select="javaVersion"><option value="auto">Автоматический выбор</option><option value="8">Java 8</option><option value="17">Java 17</option><option value="21">Java 21</option><option value="25">Java 25</option></select><div class="helper">Совместимость зависит от версии Minecraft и модов; Java здесь не скачивается.</div></div><div class="settings-field"><label class="field-label" for="jvm-args">АРГУМЕНТЫ JVM</label><textarea class="text-input jvm-args-input" id="jvm-args" rows="4" maxlength="2000" placeholder="Например: -XX:+UseG1GC -XX:MaxGCPauseMillis=100" data-jvm-args></textarea><div class="helper">Можно указать несколько параметров через пробел. Не вставляй аргументы из неизвестных источников.</div></div></article>
-          <article class="card setting-card"><h2>Визуальный движок</h2><p>Выбери графический рендерер по образцу мобильных Java-лаунчеров.</p><div class="settings-field"><label class="field-label" for="renderer-select">РЕНДЕРЕР</label><select class="settings-select" id="renderer-select" data-setting-select="renderer"><option value="auto">Автоматически</option><option value="gl4es">Holy GL4ES</option><option value="ltw">LTW</option><option value="virgl">VirGL</option><option value="zink">Zink</option><option value="angle">ANGLE</option></select></div><div class="helper">Значение сохраняется в профиле настроек. Веб-превью не устанавливает драйверы и не запускает 3D-игру.</div></article>
-          <article class="card setting-card"><h2>Графика и обзор</h2><p>Настройки будущего профиля игры.</p><div class="settings-field"><label class="field-label" for="resolution-select">РАЗРЕШЕНИЕ · АЛЬБОМНОЕ</label><select class="settings-select" id="resolution-select" data-setting-select="resolution"><option value="854x480">Компактное · 854 × 480</option><option value="960x540">960 × 540</option><option value="1280x720">1280 × 720</option><option value="1600x900">1600 × 900</option><option value="1920x1080">1920 × 1080</option><option value="auto">По устройству</option></select></div><div class="settings-field"><label class="field-label" for="render-distance">ДАЛЬНОСТЬ ПРОРИСОВКИ</label><select class="settings-select" id="render-distance" data-setting-select="renderDistance"><option value="4">4 чанка · экономно</option><option value="6">6 чанков</option><option value="8">8 чанков</option><option value="12">12 чанков</option><option value="16">16 чанков</option><option value="24">24 чанка</option><option value="32">32 чанка</option></select></div><div class="settings-field"><label class="field-label" for="fps-limit">ЛИМИТ FPS</label><select class="settings-select" id="fps-limit" data-setting-select="fpsLimit"><option value="30">30 FPS</option><option value="60">60 FPS</option><option value="90">90 FPS</option><option value="120">120 FPS</option><option value="unlimited">Без ограничения</option></select></div><div class="toggle-row"><div><div class="toggle-title">Инвертировать вертикальный обзор</div><div class="toggle-subtitle">Поменять направление движения камеры</div></div><label class="switch"><input type="checkbox" data-setting="invert-look-y" aria-label="Инвертировать вертикальный обзор"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Вертикальная синхронизация</div><div class="toggle-subtitle">Ограничить разрывы изображения</div></div><label class="switch"><input type="checkbox" data-setting="vsync" checked aria-label="Вертикальная синхронизация"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Плавное освещение</div><div class="toggle-subtitle">Более мягкое освещение мира</div></div><label class="switch"><input type="checkbox" data-setting="smooth-lighting" checked aria-label="Плавное освещение"><span class="switch-track"></span></label></div></article>
-          <article class="card setting-card wide-card"><h2>Производительность и интерфейс</h2><p>Подстрой будущий лаунчер под своё устройство.</p><div class="settings-field"><label class="field-label" for="ram-range">ПАМЯТЬ JAVA · ОЦЕНКА ДЛЯ ЭТОГО УСТРОЙСТВА</label><div class="range-wrap"><input id="ram-range" type="range" min="1" max="8" step="1" value="2" data-ram-range><span class="range-value" data-ram-value>2 ГБ</span></div><div class="helper" data-ram-help>Подбираем безопасный предел по оценочной памяти устройства и оставляем резерв Android.</div></div><div class="toggle-list" style="margin-top:10px"><div class="toggle-row"><div><div class="toggle-title">Показывать FPS</div><div class="toggle-subtitle">Счётчик появится в игровом HUD после подключения игры</div></div><label class="switch"><input type="checkbox" data-setting="show-fps" checked aria-label="Показывать FPS"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Плавные анимации</div><div class="toggle-subtitle">Отключи, если хочешь более спокойный интерфейс</div></div><label class="switch"><input type="checkbox" data-setting="animations" checked aria-label="Плавные анимации"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Показывать уведомления</div><div class="toggle-subtitle">Подсказки о загрузках и готовности версии</div></div><label class="switch"><input type="checkbox" data-setting="notifications" checked aria-label="Показывать уведомления"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Запрашивать landscape при старте</div><div class="toggle-subtitle">Ориентацию можно закрепить только если это разрешает браузер</div></div><label class="switch"><input type="checkbox" data-setting="auto-landscape" checked aria-label="Запрашивать альбомную ориентацию"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Полный экран при запуске</div><div class="toggle-subtitle">Включается после нажатия кнопки; поддержка зависит от браузера</div></div><label class="switch"><input type="checkbox" data-setting="fullscreen-startup" checked aria-label="Полный экран при запуске"><span class="switch-track"></span></label></div></div></article>
+          <article class="card setting-card"><h2>Java и JVM</h2><p>Аргументы запуска Minecraft Java и параметры установленного runtime.</p><div class="settings-field"><label class="field-label" for="java-version-select">ВЕРСИЯ JAVA · ДО 25</label><select class="settings-select" id="java-version-select" data-setting-select="javaVersion"><option value="auto">Автоматический выбор</option><option value="8">Java 8</option><option value="17">Java 17</option><option value="21">Java 21</option><option value="25">Java 25</option></select><div class="helper">Совместимость зависит от версии Minecraft и модов; Java здесь не скачивается.</div></div><div class="settings-field"><label class="field-label" for="jvm-args">АРГУМЕНТЫ JVM</label><textarea class="text-input jvm-args-input" id="jvm-args" rows="4" maxlength="2000" placeholder="Например: -XX:+UseG1GC -XX:MaxGCPauseMillis=100" data-jvm-args></textarea><div class="helper">Аргументы применяются при следующем запуске; не вставляй параметры из неизвестных источников.</div></div></article>
+          <article class="card setting-card"><h2>Визуальный движок</h2><p>Выбери графический рендерер по образцу мобильных Java-лаунчеров.</p><div class="settings-field"><label class="field-label" for="renderer-select">РЕНДЕРЕР</label><select class="settings-select" id="renderer-select" data-setting-select="renderer"><option value="auto">Автоматически</option><option value="gl4es">Holy GL4ES</option><option value="ltw">LTW</option><option value="virgl">VirGL</option><option value="zink">Zink</option><option value="angle">ANGLE</option></select></div><div class="helper">Эта панель — параметры макета. Для реального выбора рендерера открой настройки игрового движка.</div></article>
+          <article class="card setting-card"><h2>Настройки игрового движка</h2><p>Открой встроенные настройки Amethyst: Java, память, рендерер, разрешение и сенсорное управление.</p><button class="button button-primary small-button" type="button" data-native-settings>Настройки рантайма</button></article>
+          <article class="card setting-card"><h2>Графика и обзор</h2><p>Масштаб влияет на разрешение игрового окна Amethyst.</p><div class="settings-field"><label class="field-label" for="resolution-select">МАСШТАБ РЕНДЕРА · AMETHYST</label><div class="range-wrap runtime-setting-control"><input id="resolution-select" type="range" min="25" max="100" step="5" value="100" data-runtime-setting="resolutionRatio"><span class="range-value" data-runtime-setting-value>100%</span></div><div class="helper">Масштабирует разрешение игрового окна; 100% использует полный размер экрана, меньшие значения могут повысить производительность.</div></div><div class="settings-field"><label class="field-label" for="render-distance">ДАЛЬНОСТЬ ПРОРИСОВКИ</label><select class="settings-select" id="render-distance" data-setting-select="renderDistance"><option value="4">4 чанка · экономно</option><option value="6">6 чанков</option><option value="8">8 чанков</option><option value="12">12 чанков</option><option value="16">16 чанков</option><option value="24">24 чанка</option><option value="32">32 чанка</option></select></div><div class="settings-field"><label class="field-label" for="fps-limit">ЛИМИТ FPS</label><select class="settings-select" id="fps-limit" data-setting-select="fpsLimit"><option value="30">30 FPS</option><option value="60">60 FPS</option><option value="90">90 FPS</option><option value="120">120 FPS</option><option value="unlimited">Без ограничения</option></select></div><div class="toggle-row"><div><div class="toggle-title">Инвертировать вертикальный обзор</div><div class="toggle-subtitle">Поменять направление движения камеры</div></div><label class="switch"><input type="checkbox" data-setting="invert-look-y" aria-label="Инвертировать вертикальный обзор"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Вертикальная синхронизация</div><div class="toggle-subtitle">Ограничить разрывы изображения</div></div><label class="switch"><input type="checkbox" data-setting="vsync" checked aria-label="Вертикальная синхронизация"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Плавное освещение</div><div class="toggle-subtitle">Более мягкое освещение мира</div></div><label class="switch"><input type="checkbox" data-setting="smooth-lighting" checked aria-label="Плавное освещение"><span class="switch-track"></span></label></div></article>
+          <article class="card setting-card wide-card"><h2>Производительность и интерфейс</h2><p>Настрой память Java и внешний вид интерфейса Neeflow.</p><div class="settings-field"><label class="field-label" for="ram-range">ПАМЯТЬ JAVA · AMETHYST</label><div class="range-wrap runtime-setting-control"><input id="ram-range" type="range" min="256" max="2048" step="8" value="1024" data-ram-range data-runtime-setting="allocation"><span class="range-value" data-ram-value data-runtime-setting-value>1,0 ГБ</span></div><div class="helper" data-ram-help>Объём памяти, выделяемый среде Java.</div></div><div class="toggle-list" style="margin-top:10px"><div class="toggle-row"><div><div class="toggle-title">Показывать FPS</div><div class="toggle-subtitle">Счётчик появится в игровом HUD после подключения игры</div></div><label class="switch"><input type="checkbox" data-setting="show-fps" checked aria-label="Показывать FPS"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Плавные анимации</div><div class="toggle-subtitle">Отключи, если хочешь более спокойный интерфейс</div></div><label class="switch"><input type="checkbox" data-setting="animations" checked aria-label="Плавные анимации"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Показывать уведомления</div><div class="toggle-subtitle">Подсказки о загрузках и готовности версии</div></div><label class="switch"><input type="checkbox" data-setting="notifications" checked aria-label="Показывать уведомления"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Запрашивать landscape при старте</div><div class="toggle-subtitle">Ориентацию можно закрепить только если это разрешает браузер</div></div><label class="switch"><input type="checkbox" data-setting="auto-landscape" checked aria-label="Запрашивать альбомную ориентацию"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Полный экран при запуске</div><div class="toggle-subtitle">Включается после нажатия кнопки; поддержка зависит от браузера</div></div><label class="switch"><input type="checkbox" data-setting="fullscreen-startup" checked aria-label="Полный экран при запуске"><span class="switch-track"></span></label></div></div></article>
         </div>
       </section>
     </main>
@@ -1035,7 +1036,30 @@
       document.body.dataset.theme = validThemes.includes(initialTheme) ? initialTheme : "nebula";
       const nameInput = document.querySelector("#nickname");
       let username = readStorage("neeflow-username", "Guest");
+      let nativeRuntimeSettings = null;
+      const isNativeAndroid = Boolean(window.NeeflowAndroid);
       let toastTimer;
+
+      function androidCall(method, ...args) {
+        if (!isNativeAndroid || typeof window.NeeflowAndroid[method] !== "function") return null;
+        try {
+          const value = window.NeeflowAndroid[method](...args);
+          return typeof value === "string" ? JSON.parse(value) : value;
+        } catch (error) {
+          return { error: error && error.message ? error.message : "Ошибка связи с Android-лаунчером." };
+        }
+      }
+
+      function persistNativeProfile(profile) {
+        if (!isNativeAndroid) return true;
+        const result = androidCall("saveProfile", profile.id, profile.name, profile.gameVersion, profile.loader);
+        if (!result || result.error) {
+          showToast(result && result.error ? result.error : "Не удалось сохранить профиль в лаунчере.");
+          return false;
+        }
+        profile.id = result.id;
+        return true;
+      }
 
       function showToast(message) {
         const toast = document.querySelector("[data-toast]");
@@ -1224,8 +1248,8 @@
       }
 
       const skinPresets = {
-        steve: { id: "steve", name: "Steve", kind: "Оригинальный классический скин", texture: "/assets/steve.png", width: 64, height: 64, model: "classic" },
-        alex: { id: "alex", name: "Alex", kind: "Оригинальный скин · тонкие руки", texture: "/assets/alex.png", width: 64, height: 64, model: "slim" }
+        steve: { id: "steve", name: "Steve", kind: "Оригинальный классический скин", texture: "assets/steve.png", width: 64, height: 64, model: "classic" },
+        alex: { id: "alex", name: "Alex", kind: "Оригинальный скин · тонкие руки", texture: "assets/alex.png", width: 64, height: 64, model: "slim" }
       };
       function readUploadedSkins() {
         try {
@@ -1497,6 +1521,7 @@
           loader,
           catalogSource: "mojang"
         };
+        if (!persistNativeProfile(profile)) return;
         versionProfiles = [profile, ...versionProfiles];
         selectedVersionId = profile.id;
         writeStorage("neeflow-selected-version", selectedVersionId);
@@ -1689,9 +1714,6 @@
           const output = input.parentElement.querySelector("[data-control-sensitivity-value]");
           if (output) output.textContent = `${sensitivity}%`;
         });
-        document.querySelectorAll('[data-setting-select="resolution"]').forEach((select) => {
-          if (savedSettings.resolution) select.value = savedSettings.resolution;
-        });
         const preset = ["classic", "compact", "left"].includes(savedSettings.controlPreset) ? savedSettings.controlPreset : "classic";
         hudPresetSelect.value = preset;
         const editMode = typeof savedSettings.controlEdit === "boolean" ? savedSettings.controlEdit : true;
@@ -1832,7 +1854,19 @@
       function showHudPreview() {
         setView("controls");
         setHudSettingsOpen(true);
-        showToast("Открыт предпросмотр HUD. Minecraft Java пока не включён в приложение.");
+        showToast("Открыт предпросмотр HUD веб-версии. Для запуска игры используй Android APK.");
+      }
+
+      function launchMinecraft() {
+        if (!isNativeAndroid) { showHudPreview(); return; }
+        const profile = versionProfiles.find((entry) => entry.id === selectedVersionId);
+        if (!profile) { showToast("Сначала выбери или добавь версию Minecraft."); setView("versions"); return; }
+        const result = androidCall("launchGame", profile.id, username);
+        if (!result || result.error) {
+          showToast(result && result.error ? result.error : "Не удалось передать запуск игровому рантайму.");
+          return;
+        }
+        showToast(`Запускаем Minecraft ${profile.gameVersion} для ${username}…`);
       }
 
       function saveVersionProfiles() {
@@ -1855,16 +1889,28 @@
       function selectVersion(profileId) {
         const profile = versionProfiles.find((entry) => entry.id === profileId);
         if (!profile) return;
+        if (isNativeAndroid) {
+          const result = androidCall("selectProfile", profile.id);
+          if (!result || result.error) { showToast(result && result.error ? result.error : "Не удалось выбрать профиль."); return; }
+        }
         selectedVersionId = profile.id;
         writeStorage("neeflow-selected-version", selectedVersionId);
         renderVersionCatalog();
         closeModal();
-        showToast(`Профиль «${profile.name}» выбран. Minecraft пока не входит в приложение.`);
+        showToast(isNativeAndroid ? `Профиль «${profile.name}» выбран для игрового рантайма.` : `Профиль «${profile.name}» выбран. Minecraft пока не входит в веб-прототип.`);
       }
 
       function removeVersion(profileId) {
+        let nativeResult = null;
+        if (isNativeAndroid) {
+          nativeResult = androidCall("deleteProfile", profileId);
+          if (!nativeResult || nativeResult.error) { showToast(nativeResult && nativeResult.error ? nativeResult.error : "Не удалось удалить профиль."); return; }
+        }
         versionProfiles = versionProfiles.filter((entry) => entry.id !== profileId);
-        if (selectedVersionId === profileId) selectedVersionId = versionProfiles[0] ? versionProfiles[0].id : "";
+        if (selectedVersionId === profileId) {
+          const nativeFallback = versionProfiles.find((entry) => entry.id === (nativeResult && nativeResult.id));
+          selectedVersionId = nativeFallback ? nativeFallback.id : versionProfiles[0] ? versionProfiles[0].id : "";
+        }
         writeStorage("neeflow-selected-version", selectedVersionId);
         const persisted = saveVersionProfiles();
         renderVersionCatalog();
@@ -1937,6 +1983,7 @@
           return;
         }
         const profile = { id: `version-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`, name, gameVersion, loader };
+        if (!persistNativeProfile(profile)) return;
         versionProfiles = [profile, ...versionProfiles];
         selectedVersionId = profile.id;
         writeStorage("neeflow-selected-version", selectedVersionId);
@@ -1946,6 +1993,48 @@
         showToast(persisted ? `Профиль «${profile.name}» добавлен и выбран.` : "Профиль добавлен до закрытия вкладки: хранилище браузера заполнено.");
       });
 
+      if (isNativeAndroid) {
+        const nativeState = androidCall("getLauncherState");
+        nativeRuntimeSettings = androidCall("getRuntimeSettings");
+        if (nativeState && !nativeState.error) {
+          if (nativeState.username) username = nativeState.username;
+          versionProfiles = Array.isArray(nativeState.profiles) ? nativeState.profiles.map((profile) => ({
+            id: String(profile.id), name: String(profile.name || profile.gameVersion),
+            gameVersion: String(profile.gameVersion), loader: String(profile.loader || "vanilla")
+          })) : [];
+          selectedVersionId = String(nativeState.selectedProfileId || (versionProfiles[0] && versionProfiles[0].id) || "");
+          writeStorage("neeflow-username", username);
+          writeStorage("neeflow-version-profiles", JSON.stringify(versionProfiles));
+          writeStorage("neeflow-selected-version", selectedVersionId);
+          renderUsername();
+          const localNote = document.querySelector(".local-note span");
+          if (localNote) localNote.textContent = "Локальный аккаунт хранится в Amethyst на устройстве и подходит для одиночной игры и серверов в offline-mode. Онлайн-режим требует Microsoft-аккаунт с Minecraft Java Edition.";
+          [officialLoaderFilter, document.querySelector("[data-version-loader]")].forEach((select) => {
+            Array.from(select.options).forEach((option) => { if (option.value !== "vanilla") option.disabled = true; });
+            select.value = "vanilla";
+          });
+          document.querySelector(".hero-description").textContent = "Оригинальный интерфейс Neeflow подключён к Amethyst: скачивай официальные файлы Minecraft, запускай Java runtime и настраивай рендерер на устройстве.";
+          document.querySelector(".version-note span").textContent = "Профили сохраняются в игровом лаунчере. Minecraft и библиотеки загружаются из официальных источников при первом запуске.";
+          document.querySelector(".version-browser-note").textContent = "Vanilla-профили сохраняются в Amethyst. Игровые файлы, библиотеки и Java runtime загружаются на устройство при запуске выбранной версии.";
+          const profileHelper = document.querySelector(".version-create-card .helper");
+          if (profileHelper) profileHelper.textContent = "Профиль Minecraft сохраняется в лаунчере. Игровые файлы будут загружены из официальных источников при первом запуске.";
+          const controlsNote = document.querySelector(".orientation-note");
+          if (controlsNote) controlsNote.textContent = "Этот экран показывает макет Neeflow. Для редактирования настоящих игровых кнопок открой редактор сенсорного управления Amethyst ниже.";
+          document.querySelector(".ingame-settings-note").textContent = "Масштаб рендера меняет реальную настройку Amethyst; раскладка кнопок здесь остаётся предпросмотром HUD.";
+          document.querySelector(".skin-tip").textContent = "Загруженные PNG и 3D-модель служат предпросмотром. Локальный аккаунт не загружает скины в Minecraft или на серверы.";
+          document.querySelector("[data-section='settings'] .empty-caption").textContent = "Интерфейс Neeflow использует игровой runtime Amethyst. Файлы Minecraft загружаются официальным лаунчером при первом запуске.";
+          if (!nativeRuntimeSettings || nativeRuntimeSettings.error) showToast(`Не удалось загрузить настройки Amethyst: ${nativeRuntimeSettings && nativeRuntimeSettings.error ? nativeRuntimeSettings.error : "нет ответа"}`);
+          const rendererCard = document.querySelector("#renderer-select")?.closest(".setting-card");
+          if (rendererCard) rendererCard.remove();
+          ["#java-version-select", "#render-distance", "#fps-limit", '[data-setting="invert-look-y"]', '[data-setting="show-fps"]', '[data-setting="notifications"]'].forEach((selector) => {
+            const control = document.querySelector(selector);
+            const wrapper = control && control.closest(".settings-field, .toggle-row");
+            if (wrapper) wrapper.remove();
+          });
+        } else if (nativeState && nativeState.error) {
+          showToast(`Не удалось прочитать профили лаунчера: ${nativeState.error}`);
+        }
+      }
       renderVersionCatalog();
       applySavedControlLayout();
       applyControlSettings();
@@ -2028,6 +2117,14 @@
       document.querySelectorAll("[data-add-control]").forEach((button) => button.addEventListener("click", () => addControl(button.dataset.addControl)));
       document.querySelector("[data-save-controls]").addEventListener("click", () => { saveControlLayout(); showToast("Раскладка сохранена на этом устройстве."); });
       document.querySelector("[data-reset-controls]").addEventListener("click", resetControlLayout);
+      document.querySelectorAll("[data-native-controls]").forEach((button) => button.addEventListener("click", () => {
+        if (isNativeAndroid) androidCall("openTouchControls");
+        else showToast("Редактор реальных сенсорных кнопок доступен в Android APK.");
+      }));
+      document.querySelectorAll("[data-native-settings]").forEach((button) => button.addEventListener("click", () => {
+        if (isNativeAndroid) androidCall("openRuntimeSettings");
+        else showToast("Настройки игрового рантайма доступны в Android APK.");
+      }));
       document.querySelector("[data-remove-control]").addEventListener("click", () => {
         const selected = Array.from(controlCanvas.querySelectorAll("[data-control-id]")).find((item) => item.dataset.controlId === selectedControlId);
         if (!selected) return;
@@ -2094,25 +2191,23 @@
       document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !modal.classList.contains("hidden")) closeModal(); });
       document.querySelectorAll("[data-theme-option]").forEach((button) => button.addEventListener("click", () => setTheme(button.dataset.themeOption)));
       document.querySelectorAll("[data-pick]").forEach((button) => button.addEventListener("click", () => setTheme(button.dataset.pick)));
-      document.querySelectorAll("[data-launch]").forEach((button) => button.addEventListener("click", showHudPreview));
+      document.querySelectorAll("[data-launch]").forEach((button) => button.addEventListener("click", launchMinecraft));
       document.querySelector("[data-save-name]").addEventListener("click", () => {
         const candidate = nameInput.value.trim();
-        if (!candidate) {
-          username = "Guest";
-          writeStorage("neeflow-username", username);
-          renderUsername();
-          showToast("Профиль сброшен на Guest.");
-          return;
-        }
-        if (!/^[A-Za-z0-9_]{1,16}$/.test(candidate)) {
-          showToast("Используй латинские буквы, цифры и _, до 16 символов.");
+        const nextUsername = candidate || "Guest";
+        if (!/^[A-Za-z0-9_]{3,16}$/.test(nextUsername)) {
+          showToast("Используй 3–16 латинских букв, цифр или _.");
           nameInput.focus();
           return;
         }
-        username = candidate;
+        if (isNativeAndroid) {
+          const result = androidCall("saveUsername", nextUsername);
+          if (!result || result.error) { showToast(result && result.error ? result.error : "Не удалось сохранить локальный аккаунт."); return; }
+        }
+        username = nextUsername;
         writeStorage("neeflow-username", username);
         renderUsername();
-        showToast("Ник сохранён на этом устройстве.");
+        showToast(isNativeAndroid ? "Локальный аккаунт сохранён в Android-лаунчере." : "Ник сохранён в веб-прототипе.");
       });
       nameInput.addEventListener("keydown", (event) => { if (event.key === "Enter") document.querySelector("[data-save-name]").click(); });
 
@@ -2203,28 +2298,43 @@
 
       const ramRange = document.querySelector("[data-ram-range]");
       const ramValue = document.querySelector("[data-ram-value]");
-      const deviceMemoryEstimate = Number(navigator.deviceMemory);
-      const estimatedDeviceRam = Number.isFinite(deviceMemoryEstimate) && deviceMemoryEstimate > 0 ? deviceMemoryEstimate : 4;
-      const safeRamLimit = Math.max(1, Math.min(8, Math.floor(estimatedDeviceRam * .5)));
-      const defaultRam = Math.max(1, Math.min(safeRamLimit, Math.floor(estimatedDeviceRam * .35)));
-      const savedRam = Number(savedSettings.ram);
-      ramRange.min = "1";
-      ramRange.max = String(safeRamLimit);
-      ramRange.value = String(Number.isFinite(savedRam) && savedRam > 0 ? Math.max(1, Math.min(safeRamLimit, savedRam)) : defaultRam);
-      savedSettings.ram = Number(ramRange.value);
-      ramValue.textContent = `${ramRange.value} ГБ`;
-      document.querySelector("[data-ram-help]").textContent = `Оценка памяти устройства — около ${estimatedDeviceRam} ГБ. Предел ${safeRamLimit} ГБ оставляет запас для Android; точный объём свободной памяти приложению недоступен.`;
-      ramRange.addEventListener("input", () => {
-        ramValue.textContent = `${ramRange.value} ГБ`;
-        savedSettings.ram = Number(ramRange.value);
-        saveSettings();
-      });
+      if (isNativeAndroid && nativeRuntimeSettings && !nativeRuntimeSettings.error) {
+        const maximum = Math.max(256, Number(nativeRuntimeSettings.maxAllocation) || 2048);
+        const allocation = Math.max(256, Math.min(maximum, Number(nativeRuntimeSettings.allocation) || 1024));
+        ramRange.min = "256";
+        ramRange.max = String(maximum);
+        ramRange.step = "8";
+        ramRange.value = String(allocation);
+        document.querySelector("[data-ram-help]").textContent = "Это реальный лимит памяти Java в Amethyst. Оставляй запас для Android и других приложений.";
+      } else {
+        ramRange.min = "256";
+        ramRange.max = "2048";
+        ramRange.step = "8";
+        ramRange.value = String(Math.max(256, Math.min(2048, Number(savedSettings.allocation) || 1024)));
+        document.querySelector("[data-ram-help]").textContent = "Веб-предпросмотр не применяет объём памяти к игре; настройка доступна в Android APK.";
+      }
+      const updateRamValue = () => { ramValue.textContent = `${(Number(ramRange.value) / 1024).toFixed(1)} ГБ`; };
+      updateRamValue();
       document.querySelectorAll("[data-setting]").forEach((input) => {
-        if (typeof savedSettings[input.dataset.setting] === "boolean") input.checked = savedSettings[input.dataset.setting];
+        if (input.dataset.setting === "vsync" && isNativeAndroid && nativeRuntimeSettings && !nativeRuntimeSettings.error) {
+          input.checked = Boolean(nativeRuntimeSettings.forceVsync);
+        } else if (typeof savedSettings[input.dataset.setting] === "boolean") {
+          input.checked = savedSettings[input.dataset.setting];
+        }
         input.addEventListener("change", () => {
-          savedSettings[input.dataset.setting] = input.checked;
+          const key = input.dataset.setting;
+          if (key === "vsync" && isNativeAndroid) {
+            const result = androidCall("setRuntimeSetting", "force_vsync", String(input.checked));
+            if (!result || result.error) {
+              input.checked = Boolean(nativeRuntimeSettings && nativeRuntimeSettings.forceVsync);
+              showToast(result && result.error ? result.error : "Не удалось сохранить VSync в Amethyst.");
+              return;
+            }
+            if (nativeRuntimeSettings) nativeRuntimeSettings.forceVsync = input.checked;
+          }
+          savedSettings[key] = input.checked;
           saveSettings();
-          if (input.dataset.setting === "animations") document.body.classList.toggle("reduced-effects", !input.checked);
+          if (key === "animations") document.body.classList.toggle("reduced-effects", !input.checked);
         });
       });
       document.body.classList.toggle("reduced-effects", savedSettings.animations === false);
@@ -2237,9 +2347,60 @@
           saveSettings();
         });
       });
+      document.querySelectorAll("[data-runtime-setting]").forEach((input) => {
+        const setting = input.dataset.runtimeSetting;
+        const nativeValue = nativeRuntimeSettings && !nativeRuntimeSettings.error ? Number(nativeRuntimeSettings[setting]) : NaN;
+        if (isNativeAndroid && Number.isFinite(nativeValue)) input.value = String(nativeValue);
+        else if (!isNativeAndroid && Number.isFinite(Number(savedSettings[setting]))) input.value = String(savedSettings[setting]);
+        const updateDisplay = () => {
+          const value = Number(input.value);
+          document.querySelectorAll(`[data-runtime-setting="${setting}"]`).forEach((linked) => {
+            linked.value = input.value;
+            const display = linked.closest(".runtime-setting-control")?.querySelector("[data-runtime-setting-value]");
+            if (display) display.textContent = setting === "allocation" ? `${(value / 1024).toFixed(1).replace(".", ",")} ГБ` : `${value}%`;
+          });
+        };
+        updateDisplay();
+        input.addEventListener("input", updateDisplay);
+        input.addEventListener("change", () => {
+          const value = Number(input.value);
+          if (isNativeAndroid) {
+            const result = androidCall("setRuntimeSetting", setting, String(value));
+            if (!result || result.error) {
+              if (nativeRuntimeSettings && Number.isFinite(Number(nativeRuntimeSettings[setting]))) input.value = String(nativeRuntimeSettings[setting]);
+              updateDisplay();
+              showToast(result && result.error ? result.error : "Не удалось сохранить настройку Amethyst.");
+              return;
+            }
+            if (nativeRuntimeSettings) nativeRuntimeSettings[setting] = value;
+            showToast(setting === "allocation" ? "Лимит памяти Java сохранён в Amethyst." : "Масштаб рендера сохранён в Amethyst.");
+          } else {
+            savedSettings[setting] = value;
+            saveSettings();
+          }
+          updateDisplay();
+        });
+      });
       const jvmArgs = document.querySelector("[data-jvm-args]");
-      jvmArgs.value = savedSettings.jvmArgs || "";
-      jvmArgs.addEventListener("input", () => { savedSettings.jvmArgs = jvmArgs.value; saveSettings(); });
+      jvmArgs.value = isNativeAndroid && nativeRuntimeSettings && !nativeRuntimeSettings.error
+        ? String(nativeRuntimeSettings.javaArgs || "")
+        : savedSettings.jvmArgs || "";
+      jvmArgs.addEventListener("input", () => {
+        savedSettings.jvmArgs = jvmArgs.value;
+        if (!isNativeAndroid) saveSettings();
+      });
+      jvmArgs.addEventListener("change", () => {
+        if (!isNativeAndroid) return;
+        const result = androidCall("setRuntimeSetting", "javaArgs", jvmArgs.value);
+        if (!result || result.error) {
+          jvmArgs.value = nativeRuntimeSettings && nativeRuntimeSettings.javaArgs ? nativeRuntimeSettings.javaArgs : "";
+          showToast(result && result.error ? result.error : "Не удалось сохранить аргументы JVM.");
+          return;
+        }
+        jvmArgs.value = String(result.id || jvmArgs.value);
+        if (nativeRuntimeSettings) nativeRuntimeSettings.javaArgs = jvmArgs.value;
+        showToast("Аргументы JVM сохранены в Amethyst.");
+      });
 
       const extraThemes = ["ocean", "aurora", "rose", "amber", "cinder", "glacier", "citrus", "plum", "steel"];
       const themeOptions = document.querySelector(".theme-options");
@@ -2484,8 +2645,8 @@
         { title: "Внешний вид", copy: "Темы и цветовое оформление Neeflow.", cards: ["Оформление"] },
         { title: "Профиль и безопасность", copy: "Локальный игровой ник и пароль профиля на этом устройстве.", cards: ["Локальный профиль", "Пароль профиля"] },
         { title: "Сенсорное управление", copy: "Положение экранных кнопок, джойстик и чувствительность обзора.", cards: ["Сенсорное управление"] },
-        { title: "Графика и производительность", copy: "Параметры будущего игрового рендерера и нагрузки на устройство.", cards: ["Графика и обзор", "Визуальный движок", "Производительность и интерфейс"] },
-        { title: "Java и JVM", copy: "Среда выполнения и параметры запуска для Minecraft Java.", cards: ["Java и JVM"] },
+        { title: "Графика и производительность", copy: "Масштаб рендера и реальные параметры игрового рантайма.", cards: ["Графика и обзор", "Производительность и интерфейс", "Настройки игрового движка"] },
+        { title: "Java и JVM", copy: "Аргументы JVM и параметры Java из Amethyst.", cards: ["Java и JVM"] },
         { title: "О проекте", copy: "Информация о текущем статусе Neeflow.", cards: ["О Neeflow"] }
       ];
       settingsGrid.replaceChildren();

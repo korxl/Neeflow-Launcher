@@ -1,5 +1,5 @@
-# Android source notes
+# Android integration sources
 
-The `android/` directory contains Neeflow's original WebView interface prototype. It is not the APK published by the current Android workflow and cannot launch Minecraft.
+`amethyst/src/main/java/net/kdt/pojavlaunch/fragments/NeeflowLauncherFragment.java` is copied into the pinned Amethyst checkout by `scripts/prepare_amethyst.py`. It displays Neeflow's root `index.html` in a WebView and connects the interface to Amethyst's local accounts, version profiles, game launch, catalog requests, resolution scale, memory allocation, JVM arguments, VSync and native touch-control editor.
 
-The installable game launcher APK is built from the pinned Amethyst source described in the repository's root README. Its local-only authentication and Neeflow branding are applied by `scripts/prepare_amethyst.py` during the GitHub Actions build.
+The web interface and its Steve/Alex preview textures are copied into the APK assets during the Android workflow. The standalone `android/app/` module is an earlier WebView prototype; the installable launcher remains built from Amethyst by `.github/workflows/android-apk.yml`.
