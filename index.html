@@ -455,10 +455,6 @@
     .range-wrap { display:flex; align-items:center; gap:12px; margin-top:14px; }
     .range-wrap input { flex:1; accent-color:var(--accent); }
     .range-value { min-width:56px; color:var(--accent); text-align:right; font-size:11px; font-weight:750; }
-    .password-status { display:flex; align-items:center; gap:7px; margin:11px 0 0; color:var(--muted); font-size:10px; }
-    .password-status::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--subtle); }
-    .password-status.enabled { color:var(--good); }
-    .password-status.enabled::before { background:var(--good); box-shadow:0 0 8px var(--good); }
     .settings-grid .wide-card { grid-column:1/-1; }
     .inline-actions { display:flex; align-items:center; gap:8px; margin-top:12px; }
     .small-button { min-height:38px; padding:0 12px; border-radius:11px; font-size:10px; }
@@ -928,6 +924,66 @@
     body[data-theme] .theme-dot.selected { box-shadow:0 0 0 2px var(--accent),0 0 16px rgba(var(--accent-rgb),.22); }
     body[data-theme] ::selection { background:rgba(var(--accent-rgb),.32); color:#fff; }
     body.optimization-mode .sidebar, body.optimization-mode .card { background:#070809; }
+
+    body[data-theme="crimson"] { --accent:#ff5277; --accent-2:#ffae6b; --accent-rgb:255,82,119; }
+    body[data-theme="emerald"] { --accent:#39dfa0; --accent-2:#b1f278; --accent-rgb:57,223,160; }
+    body[data-theme="neon"] { --accent:#d5ff45; --accent-2:#63f4ff; --accent-rgb:213,255,69; }
+    body[data-theme="arctic"] { --accent:#82e5ff; --accent-2:#c5c7ff; --accent-rgb:130,229,255; }
+    body[data-theme="solar"] { --accent:#ffbd38; --accent-2:#ff647e; --accent-rgb:255,189,56; }
+    body[data-theme="midnight"] { --accent:#927cff; --accent-2:#f08cff; --accent-rgb:146,124,255; }
+    .theme-dot[data-pick="crimson"],.theme-swatch.crimson { background:linear-gradient(135deg,#ff5277,#ffae6b); }
+    .theme-dot[data-pick="emerald"],.theme-swatch.emerald { background:linear-gradient(135deg,#39dfa0,#b1f278); }
+    .theme-dot[data-pick="neon"],.theme-swatch.neon { background:linear-gradient(135deg,#d5ff45,#63f4ff); }
+    .theme-dot[data-pick="arctic"],.theme-swatch.arctic { background:linear-gradient(135deg,#82e5ff,#c5c7ff); }
+    .theme-dot[data-pick="solar"],.theme-swatch.solar { background:linear-gradient(135deg,#ffbd38,#ff647e); }
+    .theme-dot[data-pick="midnight"],.theme-swatch.midnight { background:linear-gradient(135deg,#927cff,#f08cff); }
+    body[data-theme="crimson"] .planet { background:radial-gradient(circle at 32% 28%,#ffe0e8 0,#ff7893 22%,#b83b62 52%,#54243d 78%,#20151f 100%); }
+    body[data-theme="emerald"] .planet { background:radial-gradient(circle at 32% 28%,#e0ffe9 0,#69e4ad 22%,#25866c 52%,#17433d 78%,#101b1c 100%); }
+    body[data-theme="neon"] .planet { background:radial-gradient(circle at 32% 28%,#f5ffd5 0,#d7ff58 22%,#7d9d3e 52%,#3d4f30 78%,#1b211b 100%); }
+    body[data-theme="arctic"] .planet { background:radial-gradient(circle at 32% 28%,#e5fbff 0,#83e5ff 22%,#438eb2 52%,#2d4c72 78%,#171b2b 100%); }
+    body[data-theme="solar"] .planet { background:radial-gradient(circle at 32% 28%,#fff3bd 0,#ffbd38 22%,#d36a45 52%,#733247 78%,#281a29 100%); }
+    body[data-theme="midnight"] .planet { background:radial-gradient(circle at 32% 28%,#f2e7ff 0,#a892ff 22%,#6554b0 52%,#353252 78%,#191827 100%); }
+    .game-preview {
+      border-color:rgba(var(--accent-rgb),.22);
+      background-color:#05070a;
+      background-image:radial-gradient(ellipse at 50% 45%,rgba(var(--accent-rgb),.075),transparent 62%);
+      box-shadow:inset 0 0 55px rgba(0,0,0,.42);
+    }
+    .game-preview::before {
+      inset:0;
+      background-image:linear-gradient(rgba(190,211,224,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(190,211,224,.09) 1px,transparent 1px);
+      background-size:28px 28px;
+      opacity:.38;
+      mask-image:radial-gradient(ellipse at center,#000 20%,transparent 100%);
+    }
+    .game-preview::after {
+      content:"ПОЛЕ РЕДАКТИРОВАНИЯ";
+      top:12px;
+      padding:5px 8px;
+      border:1px solid rgba(var(--accent-rgb),.2);
+      background:rgba(3,5,8,.82);
+      color:var(--muted);
+    }
+    @keyframes accent-sweep { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
+    @keyframes badge-pulse { 0%,100% { box-shadow:0 0 0 rgba(var(--accent-rgb),0); } 50% { box-shadow:0 0 22px rgba(var(--accent-rgb),.18); } }
+    @keyframes logo-float { 0%,100% { transform:translateY(0) rotate(0); } 50% { transform:translateY(-3px) rotate(-2deg); } }
+    @keyframes active-icon-pulse { 0%,100% { transform:scale(1); } 50% { transform:scale(1.13); } }
+    body:not(.optimization-mode) .button-primary { background-size:200% 200%; animation:accent-sweep 7s ease-in-out infinite; }
+    body:not(.optimization-mode) .hero-kicker { animation:badge-pulse 4.5s ease-in-out infinite; }
+    body:not(.optimization-mode) .brand-mark { animation:logo-float 6s ease-in-out infinite; }
+    body:not(.optimization-mode) .nav-item.active .nav-icon { animation:active-icon-pulse 2.8s ease-in-out infinite; }
+    @media (max-width:760px) {
+      .app-shell { padding-bottom:calc(96px + env(safe-area-inset-bottom)); }
+      .mobile-nav {
+        display:grid;
+        grid-template-columns:repeat(7,minmax(0,1fr)) !important;
+        grid-auto-flow:column;
+        align-items:stretch;
+        overflow:hidden;
+      }
+      .mobile-nav .nav-item { width:100%; min-width:0; flex:1 1 0; }
+      .mobile-nav .nav-item span:last-child { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:8px; }
+    }
   </style>
 </head>
 <body data-theme="nebula">
@@ -988,10 +1044,6 @@
           </article>
         </div>
 
-        <div class="lower-grid">
-          <article class="card section-card"><div class="section-header"><div><h2 class="card-title">Недавнее</h2><div class="card-label">Продолжи с того места, где остановился</div></div><button class="text-link" type="button" data-view-button="versions">Все версии<svg viewBox="0 0 24 24" fill="none"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div class="empty-row"><div class="empty-symbol"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.5 12h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div><div class="empty-title">Пока здесь тихо</div><div class="empty-caption">После добавления версии здесь появится твоя игра.</div></div></div></article>
-          <article class="card section-card"><div class="section-header"><div><h2 class="card-title">Настроение</h2><div class="card-label">Выбери цвет лаунчера</div></div><button class="text-link" type="button" data-view-button="settings">Темы<svg viewBox="0 0 24 24" fill="none"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div class="theme-preview" aria-label="Быстрый выбор темы"><button class="theme-dot selected" type="button" data-pick="nebula" aria-label="Тема Nebula" title="Nebula"></button><button class="theme-dot" type="button" data-pick="moss" aria-label="Тема Moss" title="Moss"></button><button class="theme-dot" type="button" data-pick="sunset" aria-label="Тема Sunset" title="Sunset"></button><button class="theme-dot" type="button" data-pick="light" aria-label="Violet тема" title="Violet"></button><span class="theme-caption" data-theme-caption>Nebula</span></div></article>
-        </div>
       </section>
 
       <section class="view hidden" data-section="versions">
@@ -1068,9 +1120,8 @@
         <div class="page-head"><div class="eyebrow"><span class="eyebrow-line"></span>Сенсорный экран</div><h1 class="page-title">Управление</h1><p class="page-subtitle">Перетаскивай кнопки по игровому экрану, добавляй свои элементы и сохраняй раскладку.</p></div>
         <div class="controls-layout">
           <article class="card control-workspace">
-            <div class="control-editor-bar"><span class="control-editor-title">ИГРОВОЙ HUD · ПРЕДПРОСМОТР И РЕДАКТОР</span><span class="pill-note">Изменения сохраняются автоматически</span></div>
-            <div class="game-preview" data-control-canvas aria-label="Предпросмотр экранного управления Minecraft">
-              <span class="control-crosshair" aria-hidden="true"></span>
+            <div class="control-editor-bar"><span class="control-editor-title">РАСКЛАДКА · РЕДАКТОР</span><span class="pill-note">Изменения сохраняются автоматически</span></div>
+            <div class="game-preview" data-control-canvas aria-label="Поле редактирования элементов управления">
               <button class="touch-control" type="button" data-control-id="chat" data-control-kind="button" style="left:4%;top:5%">CHAT</button>
               <button class="touch-control" type="button" data-control-id="sneak" data-control-kind="button" style="left:5%;top:36%">SHIFT</button>
               <button class="touch-control" type="button" data-control-id="inventory" data-control-kind="button" style="left:16%;top:5%">INV</button>
@@ -1145,7 +1196,7 @@
           <article class="card setting-card"><h2>Сенсорное управление</h2><p>Настрой экранные кнопки, виртуальный джойстик, прозрачность и положение элементов.</p><button class="button button-quiet small-button" type="button" data-view-button="controls">Открыть редактор управления</button></article>
           <article class="card setting-card"><h2>Локальный профиль</h2><p>Укажи ник, который будет использоваться в игре. Microsoft-аккаунт не нужен.</p><label class="field-label" for="nickname">ИГРОВОЙ НИК</label><div class="input-row"><input class="text-input" id="nickname" name="nickname" type="text" maxlength="16" autocomplete="nickname" placeholder="Например, Neeflow" aria-describedby="nickname-help"><button class="button button-primary save-button" type="button" data-save-name>Сохранить</button></div><div class="helper" id="nickname-help">До 16 символов. Только латинские буквы, цифры и подчёркивание.</div><div class="local-note"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 6v5.5c0 5-3.4 8-8 9.5-4.6-1.5-8-4.5-8-9.5V6l8-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>В веб-версии ник хранится в браузере. Локальный профиль не авторизует на серверах, требующих аккаунт Microsoft.</span></div></article>
           <article class="card setting-card"><h2>О Neeflow</h2><p>Android-оболочка Neeflow с каталогом версий, локальными настройками и предпросмотром HUD.</p><div class="empty-row"><div class="empty-symbol"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m4.2 7.7 7.8 4.4 7.8-4.4M12 12.1V21" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div><div class="empty-title">Предварительный макет</div><div class="empty-caption">Minecraft Java и Java runtime пока не входят в эту сборку.</div></div></div></article>
-          <article class="card setting-card"><h2>Пароль профиля</h2><p>Необязательный пароль локального профиля.</p><label class="field-label" for="profile-password">НОВЫЙ ПАРОЛЬ</label><input class="text-input" id="profile-password" type="password" autocomplete="new-password" minlength="6" placeholder="Минимум 6 символов"><div class="settings-field"><label class="field-label" for="profile-password-confirm">ПОВТОРИ ПАРОЛЬ</label><input class="text-input" id="profile-password-confirm" type="password" autocomplete="new-password" minlength="6" placeholder="Ещё раз для проверки"></div><div class="password-status" data-password-status>Пароль не установлен</div><div class="inline-actions"><button class="button button-primary small-button" type="button" data-password-save>Установить пароль</button><button class="button button-quiet small-button" type="button" data-password-remove>Удалить</button></div><div class="helper">В макете сохраняется только контрольный хэш в этом браузере. Это не пароль Microsoft и не защита файлов Android.</div></article>
+
           <article class="card setting-card"><h2>Java и JVM</h2><p>Аргументы запуска Minecraft Java и параметры установленного runtime.</p><div class="settings-field"><label class="field-label" for="java-version-select">ВЕРСИЯ JAVA · ДО 25</label><select class="settings-select" id="java-version-select" data-setting-select="javaVersion"><option value="auto">Автоматический выбор</option><option value="8">Java 8</option><option value="17">Java 17</option><option value="21">Java 21</option><option value="25">Java 25</option></select><div class="helper">Совместимость зависит от версии Minecraft и модов; Java здесь не скачивается.</div></div><div class="settings-field"><label class="field-label" for="jvm-args">АРГУМЕНТЫ JVM</label><textarea class="text-input jvm-args-input" id="jvm-args" rows="4" maxlength="2000" placeholder="Например: -XX:+UseG1GC -XX:MaxGCPauseMillis=100" data-jvm-args></textarea><div class="helper">Аргументы применяются при следующем запуске; не вставляй параметры из неизвестных источников.</div></div></article>
           <article class="card setting-card"><h2>Визуальный движок</h2><p>Выбери графический рендерер по образцу мобильных Java-лаунчеров.</p><div class="settings-field"><label class="field-label" for="renderer-select">РЕНДЕРЕР</label><select class="settings-select" id="renderer-select" data-setting-select="renderer"><option value="auto">Автоматически</option><option value="gl4es">Holy GL4ES</option><option value="ltw">LTW</option><option value="virgl">VirGL</option><option value="zink">Zink</option><option value="angle">ANGLE</option></select></div><div class="helper">Эта панель — параметры макета. Для реального выбора рендерера открой настройки игрового движка.</div></article>
           <article class="card setting-card"><h2>Настройки игрового движка</h2><p>Открой встроенные настройки Amethyst: Java, память, рендерер, разрешение и сенсорное управление.</p><button class="button button-primary small-button" type="button" data-native-settings>Настройки рантайма</button></article>
@@ -1177,7 +1228,7 @@
 
   <script>
     (() => {
-      const themeNames = { nebula: "Nebula", moss: "Moss", sunset: "Sunset", light: "Violet", ocean: "Ocean", aurora: "Aurora", rose: "Rose", amber: "Amber", cinder: "Cinder", glacier: "Glacier", citrus: "Citrus", plum: "Plum", steel: "Steel" };
+      const themeNames = { nebula: "Nebula", moss: "Moss", sunset: "Sunset", light: "Violet", ocean: "Ocean", aurora: "Aurora", rose: "Rose", amber: "Amber", cinder: "Cinder", glacier: "Glacier", citrus: "Citrus", plum: "Plum", steel: "Steel", crimson: "Crimson", emerald: "Emerald", neon: "Neon", arctic: "Arctic", solar: "Solar", midnight: "Midnight" };
       const validThemes = Object.keys(themeNames);
       const readStorage = (key, fallback) => {
         try { return localStorage.getItem(key) || fallback; } catch { return fallback; }
@@ -1191,6 +1242,7 @@
       let username = readStorage("neeflow-username", "Guest");
       let nativeRuntimeSettings = null;
       const isNativeAndroid = Boolean(window.NeeflowAndroid);
+      try { localStorage.removeItem("neeflow-password-v1"); } catch { /* Storage can be unavailable. */ }
       let toastTimer;
 
       function androidCall(method, ...args) {
@@ -2244,39 +2296,6 @@
         knob.style.transform = `translate(${dx}px,${dy}px)`;
       }
 
-      function refreshPasswordStatus() {
-        const enabled = Boolean(readStorage("neeflow-password-v1", ""));
-        const status = document.querySelector("[data-password-status]");
-        status.classList.toggle("enabled", enabled);
-        status.textContent = enabled ? "Локальный пароль настроен" : "Пароль не установлен";
-      }
-      function bytesToBase64(bytes) {
-        let binary = "";
-        bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
-        return btoa(binary);
-      }
-      async function hashPassword(password, salt) {
-        const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveBits"]);
-        const bits = await crypto.subtle.deriveBits({ name: "PBKDF2", salt, iterations: 120000, hash: "SHA-256" }, key, 256);
-        return bytesToBase64(new Uint8Array(bits));
-      }
-      async function saveLocalPassword() {
-        const password = document.querySelector("#profile-password").value;
-        const confirmation = document.querySelector("#profile-password-confirm").value;
-        if (password.length < 6) { showToast("Пароль должен содержать минимум 6 символов."); return; }
-        if (password !== confirmation) { showToast("Пароли не совпадают."); return; }
-        if (!window.crypto || !crypto.subtle) { showToast("Безопасное сохранение пароля недоступно в этом браузере."); return; }
-        const salt = crypto.getRandomValues(new Uint8Array(16));
-        try {
-          const record = { salt: bytesToBase64(salt), hash: await hashPassword(password, salt), iterations: 120000 };
-          writeStorage("neeflow-password-v1", JSON.stringify(record));
-          document.querySelector("#profile-password").value = "";
-          document.querySelector("#profile-password-confirm").value = "";
-          refreshPasswordStatus();
-          showToast("Контрольный хэш пароля сохранён в этом браузере.");
-        } catch { showToast("Не удалось обработать пароль в этом браузере."); }
-      }
-
       function updateFolderLabel(target, name) {
         const label = document.querySelector(`[data-folder-label="${target}"]`);
         if (!label) return;
@@ -2819,16 +2838,6 @@
         if (stored) label.textContent = stored;
       });
 
-      document.querySelector("[data-password-save]").addEventListener("click", saveLocalPassword);
-      document.querySelector("[data-password-remove]").addEventListener("click", () => {
-        try { localStorage.removeItem("neeflow-password-v1"); } catch { /* Storage can be unavailable. */ }
-        document.querySelector("#profile-password").value = "";
-        document.querySelector("#profile-password-confirm").value = "";
-        refreshPasswordStatus();
-        showToast("Локальный пароль удалён.");
-      });
-      refreshPasswordStatus();
-
       const ramRange = document.querySelector("[data-ram-range]");
       const ramValue = document.querySelector("[data-ram-value]");
       const ramHelp = document.querySelector("[data-ram-help]");
@@ -2948,7 +2957,7 @@
         showToast("Аргументы JVM сохранены в Amethyst.");
       });
 
-      const extraThemes = ["ocean", "aurora", "rose", "amber", "cinder", "glacier", "citrus", "plum", "steel"];
+      const extraThemes = ["ocean", "aurora", "rose", "amber", "cinder", "glacier", "citrus", "plum", "steel", "crimson", "emerald", "neon", "arctic", "solar", "midnight"];
       const themeOptions = document.querySelector(".theme-options");
       const themePreview = document.querySelector(".theme-preview");
       extraThemes.forEach((theme) => {
@@ -2973,7 +2982,7 @@
         dot.title = themeNames[theme];
         dot.setAttribute("aria-pressed", "false");
         dot.addEventListener("click", () => setTheme(theme));
-        themePreview.insertBefore(dot, themePreview.querySelector("[data-theme-caption]"));
+        if (themePreview) themePreview.insertBefore(dot, themePreview.querySelector("[data-theme-caption]"));
       });
 
       const catalogCard = versionList.closest(".version-catalog-card");
@@ -3189,7 +3198,7 @@
       const settingCards = Array.from(settingsGrid.querySelectorAll(":scope > .setting-card"));
       const settingsGroups = [
         { title: "Внешний вид", copy: "Темы и цветовое оформление Neeflow.", cards: ["Оформление"] },
-        { title: "Профиль и безопасность", copy: "Локальный игровой ник и пароль профиля на этом устройстве.", cards: ["Локальный профиль", "Пароль профиля"] },
+        { title: "Профиль", copy: "Локальный игровой ник на этом устройстве.", cards: ["Локальный профиль"] },
         { title: "Сенсорное управление", copy: "Положение экранных кнопок, джойстик и чувствительность обзора.", cards: ["Сенсорное управление"] },
         { title: "Графика и производительность", copy: "Масштаб рендера и реальные параметры игрового рантайма.", cards: ["Графика и обзор", "Производительность и интерфейс", "Настройки игрового движка"] },
         { title: "Java и JVM", copy: "Аргументы JVM и параметры Java из Amethyst.", cards: ["Java и JVM"] },
