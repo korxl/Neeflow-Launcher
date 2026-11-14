@@ -1,21 +1,25 @@
 # Neeflow Launcher
 
-Neeflow is an Android launcher interface prototype for Minecraft Java. It includes local launcher profiles, a version catalog, Modrinth modpack discovery, skin previews, customizable touch HUD layouts and launcher settings.
+Neeflow is an Android Minecraft Java launcher built on the open-source Amethyst runtime. The APK includes a Java runtime, native renderer and touch controls; Minecraft game files are downloaded from official sources when a version is installed and are not included in this repository.
 
 ## Android APK
 
-Every push to `main` builds an installable Android debug APK. GitHub Actions publishes it as a downloadable workflow artifact and attaches it to a prerelease in the repository's Releases section. The build bundles the website files into the Android app; it does not depend on the FreeMilk preview URL.
+A push to `main` builds an installable debug APK with GitHub Actions. The workflow checks out Amethyst at the pinned source revision, initializes its submodules, downloads the OpenJDK 8 runtime, applies the Neeflow branding and local-account patch, then builds the APK. The APK is published as a workflow artifact and attached to a prerelease.
 
-The APK includes a native Android WebView shell and native network adapters for the Minecraft version catalog and Modrinth. It does not include Minecraft Java, a Java runtime, Microsoft/Minecraft sign-in or a game engine. It therefore cannot launch Minecraft or connect to multiplayer servers yet. HUD controls and resolution settings are saved as launcher preferences and preview layout only.
+The launcher is based on AngelAuraMC Amethyst-Android at commit `166af615dbdca1a507b8c2d379822cca02795132`. Neeflow's source changes are in [`scripts/prepare_amethyst.py`](scripts/prepare_amethyst.py). The full Amethyst LGPLv3 license is included in [`third_party/AMETHYST-LGPL-3.0.txt`](third_party/AMETHYST-LGPL-3.0.txt) and bundled into the APK's About assets by the workflow. See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
 
-## Build locally
+## Accounts and multiplayer
 
-Install JDK 17 and Gradle 8.11.1, then run:
+This build uses local/offline player profiles only and does not require a Microsoft account or OAuth client ID. Choose **Use local account** and enter a player name. Single-player and offline-mode servers can be used; online-mode servers require Microsoft authentication and a Minecraft Java license, which this build does not provide.
 
-`gradle -p android :app:assembleDebug`
+Minecraft itself is not bundled. Install a version in the launcher; game libraries and assets are fetched from Mojang/Minecraft's official services. Performance and compatibility depend on the device, Minecraft version and renderer.
 
-The APK is written to `android/app/build/outputs/apk/debug/app-debug.apk`. This is a debug-signed package for testing and sideloading, not a Play Store release.
+## Controls and settings
 
-## Web preview
+The Amethyst runtime provides editable touch controls, gamepad support, Java/runtime settings, renderer and resolution preferences, version profiles and mod-loader installers. Some download and mod-loader features may require network access.
 
-The original Node.js web app remains available through the repository's Dockerfile. Its server provides the Modrinth and Minecraft catalog API routes used by the preview.
+## Build source
+
+The Android release workflow is the supported APK build. It uses JDK 21, Gradle 9.6.1, Android SDK/NDK and the JRE artifact described in the upstream [Amethyst build instructions](https://github.com/AngelAuraMC/Amethyst-Android/blob/166af615dbdca1a507b8c2d379822cca02795132/README.md). GitHub Actions checks out the source into a path without spaces, as required by Amethyst's native build.
+
+The root `index.html` and `server.js` remain the separate Neeflow web prototype and preview; they are not the Android game's runtime.

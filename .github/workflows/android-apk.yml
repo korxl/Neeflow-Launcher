@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Neeflow Android APK
 
 on:
   push:
@@ -10,30 +10,56 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - name: Check out source
+      - name: Check out Neeflow source
         uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Check out Amethyst launcher source
+        uses: actions/checkout@v4
+        with:
+          repository: AngelAuraMC/Amethyst-Android
+          ref: 166af615dbdca1a507b8c2d379822cca02795132
+          path: amethyst
+          submodules: recursive
+
+      - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: '21'
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.11.1'
+          gradle-version: '9.6.1'
+
+      - name: Download OpenJDK 8 runtime
+        uses: dawidd6/action-download-artifact@v9
+        with:
+          workflow: build.yml
+          path: amethyst/app_pojavlauncher/src/main/assets/components/jre
+          workflow_conclusion: completed
+          repo: AngelAuraMC/angelauramc-openjdk-build
+          branch: buildjre8
+          name: jre8-pojav
+
+      - name: Prepare Neeflow local-account build
+        run: python3 scripts/prepare_amethyst.py amethyst
+
+      - name: Refresh language list
+        working-directory: amethyst
+        run: bash scripts/languagelist_updater.sh
 
       - name: Build installable APK
-        run: gradle -p android :app:assembleDebug
+        working-directory: amethyst
+        run: gradle :app_pojavlauncher:assembleDebug
 
       - name: Publish APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: Neeflow-Launcher-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: amethyst/app_pojavlauncher/build/outputs/apk/debug/app_pojavlauncher-debug.apk
           if-no-files-found: error
           retention-days: 90
 
@@ -42,10 +68,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           mkdir -p dist
-          cp android/app/build/outputs/apk/debug/app-debug.apk dist/Neeflow-Launcher.apk
+          cp amethyst/app_pojavlauncher/build/outputs/apk/debug/app_pojavlauncher-debug.apk dist/Neeflow-Launcher.apk
           tag="apk-${GITHUB_SHA::12}"
-          gh release create "$tag" dist/Neeflow-Launcher.apk \
-            --title "Neeflow Launcher APK ${GITHUB_SHA::7}" \
-            --notes "Installable Android debug APK built from commit ${GITHUB_SHA}. Minecraft itself is not bundled; see the repository README." \
-            --prerelease \
-            --target "$GITHUB_SHA"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" dist/Neeflow-Launcher.apk --clobber
+          else
+            gh release create "$tag" dist/Neeflow-Launcher.apk \
+              --title "Neeflow Launcher APK ${GITHUB_SHA::7}" \
+              --notes "Amethyst-based Neeflow debug APK with local/offline accounts. Minecraft game files are downloaded from official sources and are not bundled. Local accounts cannot authenticate to online-mode servers." \
+              --prerelease \
+              --target "$GITHUB_SHA"
+          fi
