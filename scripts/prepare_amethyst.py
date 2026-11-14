@@ -48,6 +48,14 @@ def main() -> None:
     fragment_target.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(fragment_source, fragment_target)
 
+    launcher_preferences = app_root / "src/main/java/net/kdt/pojavlaunch/prefs/LauncherPreferences.java"
+    edit_file(launcher_preferences, [
+        (
+            "        if (deviceRam < 6144) return 1536;\n        return 2048; //Default RAM allocation for 64 bits",
+            "        if (deviceRam < 6144) return 1536;\n        if (deviceRam < 7168) return 2048;\n        if (deviceRam < 10240) return 3072;\n        return 4096; // Device-aware default for 64-bit devices",
+        ),
+    ])
+
     gradle_file = app_root / "build.gradle"
     gradle_text = gradle_file.read_text(encoding="utf-8")
     if "org.angelauramc.amethyst" not in gradle_text:

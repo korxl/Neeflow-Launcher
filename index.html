@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0b0c0f">
+  <meta name="theme-color" content="#000000">
   <meta name="description" content="Neeflow Launcher — концепт лаунчера Minecraft Java для Android.">
   <title>Neeflow Launcher</title>
   <style>
@@ -814,10 +814,124 @@
         .mobile-nav { right:max(13px,env(safe-area-inset-right)); bottom:max(12px,calc(env(safe-area-inset-bottom) + 8px)); left:max(13px,env(safe-area-inset-left)); }
       }
     }
+    .particle-canvas { position:fixed; inset:0; z-index:1000; width:100vw; height:100vh; pointer-events:none; }
+    .particle-effect-field { transition:opacity .2s ease; }
+    .particle-effect-field.is-disabled { opacity:.45; }
+    .particle-effect-field select:disabled { cursor:not-allowed; }
+    body.optimization-mode .ambient::before, body.optimization-mode .ambient::after { animation:none; filter:none; opacity:.035; }
+    body.optimization-mode .sidebar, body.optimization-mode .card, body.optimization-mode .modal, body.optimization-mode .modal-backdrop, body.optimization-mode .mobile-nav, body.optimization-mode .ingame-settings-panel { box-shadow:none; backdrop-filter:none; -webkit-backdrop-filter:none; }
+    body.optimization-mode *, body.optimization-mode *::before, body.optimization-mode *::after { animation:none !important; transition:none !important; }
+    body.optimization-mode .particle-canvas { display:none; }
+
+    :root, body[data-theme] {
+      color-scheme:dark;
+      --bg:#000;
+      --bg-soft:#050608;
+      --panel:rgba(7,9,12,.94);
+      --panel-strong:#090b0e;
+      --panel-hover:#12161b;
+      --line:rgba(190,211,224,.11);
+      --text:#f2f6f8;
+      --muted:#9aa6ae;
+      --subtle:#68757e;
+      --shadow:0 22px 72px rgba(0,0,0,.7);
+      --radius:18px;
+    }
+    body {
+      background-color:#000;
+      background-image:radial-gradient(ellipse at 77% 0%,rgba(var(--accent-rgb),.045),transparent 38%),linear-gradient(180deg,#000 0%,#020304 70%,#000 100%);
+    }
+    body[data-theme] .ambient::before, body[data-theme] .ambient::after { opacity:.075; filter:blur(125px); }
+    .app-shell { max-width:1480px; padding:19px; gap:17px; }
+    body[data-theme] .sidebar {
+      border-color:rgba(190,211,224,.1);
+      border-radius:22px;
+      background:rgba(4,5,7,.94);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 24px 70px rgba(0,0,0,.62);
+      backdrop-filter:blur(20px) saturate(125%);
+      -webkit-backdrop-filter:blur(20px) saturate(125%);
+    }
+    body[data-theme] .card {
+      border-color:rgba(190,211,224,.09);
+      border-radius:var(--radius);
+      background:linear-gradient(150deg,rgba(11,13,16,.97),rgba(5,6,8,.985));
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 18px 48px rgba(0,0,0,.34);
+      backdrop-filter:none;
+      -webkit-backdrop-filter:none;
+    }
+    body[data-theme] .card:hover { border-color:rgba(var(--accent-rgb),.2); }
+    body[data-theme] .hero {
+      border-color:rgba(var(--accent-rgb),.23);
+      border-radius:24px;
+      background:radial-gradient(ellipse at 78% 22%,rgba(var(--accent-rgb),.11),transparent 34%),linear-gradient(140deg,#0a0d10 0%,#050607 64%,#020304 100%);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 28px 80px rgba(0,0,0,.56);
+    }
+    body[data-theme] .planet { filter:brightness(.76) saturate(.82); }
+    body[data-theme] .nav-item.active {
+      border-color:rgba(var(--accent-rgb),.28);
+      border-radius:12px;
+      background:linear-gradient(90deg,rgba(var(--accent-rgb),.13),rgba(var(--accent-rgb),.035));
+      box-shadow:inset 2px 0 var(--accent),0 0 24px rgba(var(--accent-rgb),.035);
+    }
+    body[data-theme] .button-primary {
+      border-color:rgba(var(--accent-rgb),.36);
+      background:linear-gradient(115deg,var(--accent),var(--accent-2));
+      color:#030507;
+      box-shadow:0 0 26px rgba(var(--accent-rgb),.2);
+    }
+    body[data-theme] .button-primary:hover { box-shadow:0 0 34px rgba(var(--accent-rgb),.3); }
+    body[data-theme] .button-quiet,
+    body[data-theme] .status-pill,
+    body[data-theme] .icon-button,
+    body[data-theme] .version-picker,
+    body[data-theme] .theme-option,
+    body[data-theme] .skin-option,
+    body[data-theme] .control-preset,
+    body[data-theme] .official-version-card,
+    body[data-theme] .version-browser-filters,
+    body[data-theme] .control-inspector,
+    body[data-theme] .file-browser-toolbar,
+    body[data-theme] .folder-path,
+    body[data-theme] .empty-row,
+    body[data-theme] .version-profile {
+      border-color:rgba(190,211,224,.09);
+      background:#080a0d;
+    }
+    body[data-theme] .button-quiet:hover,
+    body[data-theme] .icon-button:hover,
+    body[data-theme] .theme-option:hover,
+    body[data-theme] .skin-option:hover,
+    body[data-theme] .version-picker:hover { border-color:rgba(var(--accent-rgb),.35); background:#0d1115; }
+    body[data-theme] .theme-option.selected { border-color:rgba(var(--accent-rgb),.42); background:rgba(var(--accent-rgb),.09); box-shadow:inset 0 0 18px rgba(var(--accent-rgb),.035); }
+    body[data-theme] .text-input,
+    body[data-theme] .settings-select,
+    body[data-theme] .ingame-settings-fields .settings-select {
+      border-color:rgba(190,211,224,.1);
+      background:#050709;
+      color:var(--text);
+    }
+    body[data-theme] .text-input:focus,
+    body[data-theme] .settings-select:focus { border-color:rgba(var(--accent-rgb),.55); box-shadow:0 0 0 3px rgba(var(--accent-rgb),.08); }
+    body[data-theme] input::placeholder,
+    body[data-theme] textarea::placeholder { color:#65717a; }
+    body[data-theme] option { background:#080a0d; color:var(--text); }
+    body[data-theme] .modal-backdrop { background:rgba(0,0,0,.82); }
+    body[data-theme] .modal,
+    body[data-theme] .ingame-settings-panel,
+    body[data-theme] .toast { border-color:rgba(190,211,224,.12); background:#080a0d; }
+    body[data-theme] .mobile-nav { border-color:rgba(190,211,224,.12); background:rgba(5,6,8,.96); }
+    body[data-theme] .ingame-settings-head { border-color:rgba(190,211,224,.12); }
+    body[data-theme] .switch-track { border-color:rgba(190,211,224,.15); background:#12161a; }
+    body[data-theme] .toggle-row { border-color:rgba(190,211,224,.09); }
+    body[data-theme] .theme-dot { border-color:#07090b; box-shadow:0 0 0 1px rgba(190,211,224,.16); }
+    body[data-theme] .theme-dot.selected { box-shadow:0 0 0 2px var(--accent),0 0 16px rgba(var(--accent-rgb),.22); }
+    body[data-theme] ::selection { background:rgba(var(--accent-rgb),.32); color:#fff; }
+    body.optimization-mode .sidebar, body.optimization-mode .card { background:#070809; }
   </style>
 </head>
 <body data-theme="nebula">
   <div class="ambient" aria-hidden="true"></div>
+  <canvas class="particle-canvas" data-particle-canvas aria-hidden="true"></canvas>
   <div class="app-shell">
     <aside class="sidebar" aria-label="Основная навигация">
       <div class="brand">
@@ -875,7 +989,7 @@
 
         <div class="lower-grid">
           <article class="card section-card"><div class="section-header"><div><h2 class="card-title">Недавнее</h2><div class="card-label">Продолжи с того места, где остановился</div></div><button class="text-link" type="button" data-view-button="versions">Все версии<svg viewBox="0 0 24 24" fill="none"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div class="empty-row"><div class="empty-symbol"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.5 12h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div><div class="empty-title">Пока здесь тихо</div><div class="empty-caption">После добавления версии здесь появится твоя игра.</div></div></div></article>
-          <article class="card section-card"><div class="section-header"><div><h2 class="card-title">Настроение</h2><div class="card-label">Выбери цвет лаунчера</div></div><button class="text-link" type="button" data-view-button="settings">Темы<svg viewBox="0 0 24 24" fill="none"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div class="theme-preview" aria-label="Быстрый выбор темы"><button class="theme-dot selected" type="button" data-pick="nebula" aria-label="Тема Nebula" title="Nebula"></button><button class="theme-dot" type="button" data-pick="moss" aria-label="Тема Moss" title="Moss"></button><button class="theme-dot" type="button" data-pick="sunset" aria-label="Тема Sunset" title="Sunset"></button><button class="theme-dot" type="button" data-pick="light" aria-label="Светлая тема" title="Светлая"></button><span class="theme-caption" data-theme-caption>Nebula</span></div></article>
+          <article class="card section-card"><div class="section-header"><div><h2 class="card-title">Настроение</h2><div class="card-label">Выбери цвет лаунчера</div></div><button class="text-link" type="button" data-view-button="settings">Темы<svg viewBox="0 0 24 24" fill="none"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div><div class="theme-preview" aria-label="Быстрый выбор темы"><button class="theme-dot selected" type="button" data-pick="nebula" aria-label="Тема Nebula" title="Nebula"></button><button class="theme-dot" type="button" data-pick="moss" aria-label="Тема Moss" title="Moss"></button><button class="theme-dot" type="button" data-pick="sunset" aria-label="Тема Sunset" title="Sunset"></button><button class="theme-dot" type="button" data-pick="light" aria-label="Violet тема" title="Violet"></button><span class="theme-caption" data-theme-caption>Nebula</span></div></article>
         </div>
       </section>
 
@@ -1025,7 +1139,7 @@
             <button class="theme-option selected" type="button" data-theme-option="nebula"><span class="theme-swatch nebula"></span><span>Nebula</span></button>
             <button class="theme-option" type="button" data-theme-option="moss"><span class="theme-swatch moss"></span><span>Moss</span></button>
             <button class="theme-option" type="button" data-theme-option="sunset"><span class="theme-swatch sunset"></span><span>Sunset</span></button>
-            <button class="theme-option" type="button" data-theme-option="light"><span class="theme-swatch light"></span><span>Светлая</span></button>
+            <button class="theme-option" type="button" data-theme-option="light"><span class="theme-swatch light"></span><span>Violet</span></button>
           </div></article>
           <article class="card setting-card"><h2>Сенсорное управление</h2><p>Настрой экранные кнопки, виртуальный джойстик, прозрачность и положение элементов.</p><button class="button button-quiet small-button" type="button" data-view-button="controls">Открыть редактор управления</button></article>
           <article class="card setting-card"><h2>Локальный профиль</h2><p>Укажи ник, который будет использоваться в игре. Microsoft-аккаунт не нужен.</p><label class="field-label" for="nickname">ИГРОВОЙ НИК</label><div class="input-row"><input class="text-input" id="nickname" name="nickname" type="text" maxlength="16" autocomplete="nickname" placeholder="Например, Neeflow" aria-describedby="nickname-help"><button class="button button-primary save-button" type="button" data-save-name>Сохранить</button></div><div class="helper" id="nickname-help">До 16 символов. Только латинские буквы, цифры и подчёркивание.</div><div class="local-note"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 6v5.5c0 5-3.4 8-8 9.5-4.6-1.5-8-4.5-8-9.5V6l8-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>В веб-версии ник хранится в браузере. Локальный профиль не авторизует на серверах, требующих аккаунт Microsoft.</span></div></article>
@@ -1062,7 +1176,7 @@
 
   <script>
     (() => {
-      const themeNames = { nebula: "Nebula", moss: "Moss", sunset: "Sunset", light: "Светлая", ocean: "Ocean", aurora: "Aurora", rose: "Rose", amber: "Amber", cinder: "Cinder", glacier: "Glacier", citrus: "Citrus", plum: "Plum", steel: "Steel" };
+      const themeNames = { nebula: "Nebula", moss: "Moss", sunset: "Sunset", light: "Violet", ocean: "Ocean", aurora: "Aurora", rose: "Rose", amber: "Amber", cinder: "Cinder", glacier: "Glacier", citrus: "Citrus", plum: "Plum", steel: "Steel" };
       const validThemes = Object.keys(themeNames);
       const readStorage = (key, fallback) => {
         try { return localStorage.getItem(key) || fallback; } catch { return fallback; }
@@ -1500,6 +1614,295 @@
       }
       let savedSettings = readSettings();
       function saveSettings() { writeStorage("neeflow-settings", JSON.stringify(savedSettings)); }
+
+      const particleEffects = ["snow", "lightning", "leaves", "petals", "embers"];
+      const particleCanvas = document.querySelector("[data-particle-canvas]");
+      const particleContext = particleCanvas ? particleCanvas.getContext("2d") : null;
+      const animationToggle = document.querySelector('[data-setting="animations"]');
+      const reducedMotionQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+      let particleToggle = null;
+      let optimizationToggle = null;
+      let particleEffectSelect = null;
+      let particleEffectField = null;
+      let particleFrame = 0;
+      let particleLastFrame = 0;
+      let particleWidth = 0;
+      let particleHeight = 0;
+      let particleScale = 1;
+      let particles = [];
+      let lightningTimer = 240;
+      let lightningFlash = 0;
+      let lightningPoints = [];
+
+      const animationsRow = animationToggle && animationToggle.closest(".toggle-row");
+      const settingsToggleList = animationsRow && animationsRow.closest(".toggle-list");
+      if (settingsToggleList) {
+        const particleRow = document.createElement("div");
+        particleRow.className = "toggle-row";
+        const particleCopy = document.createElement("div");
+        const particleTitle = document.createElement("div");
+        particleTitle.className = "toggle-title";
+        particleTitle.textContent = "Частицы интерфейса";
+        const particleSubtitle = document.createElement("div");
+        particleSubtitle.className = "toggle-subtitle";
+        particleSubtitle.textContent = "Падают поверх экранов, не блокируя кнопки";
+        particleCopy.append(particleTitle, particleSubtitle);
+        const particleSwitch = document.createElement("label");
+        particleSwitch.className = "switch";
+        particleToggle = document.createElement("input");
+        particleToggle.type = "checkbox";
+        particleToggle.dataset.setting = "particles";
+        particleToggle.setAttribute("aria-label", "Включить частицы интерфейса");
+        particleToggle.checked = savedSettings.particles === true;
+        const particleTrack = document.createElement("span");
+        particleTrack.className = "switch-track";
+        particleSwitch.append(particleToggle, particleTrack);
+        particleRow.append(particleCopy, particleSwitch);
+
+        particleEffectField = document.createElement("div");
+        particleEffectField.className = "settings-field particle-effect-field";
+        const particleEffectLabel = document.createElement("label");
+        particleEffectLabel.className = "field-label";
+        particleEffectLabel.htmlFor = "particle-effect-select";
+        particleEffectLabel.textContent = "ТИП ЧАСТИЦ";
+        particleEffectSelect = document.createElement("select");
+        particleEffectSelect.className = "settings-select";
+        particleEffectSelect.id = "particle-effect-select";
+        particleEffectSelect.setAttribute("aria-label", "Тип частиц интерфейса");
+        particleEffectSelect.dataset.particleEffect = "";
+        [["snow", "Снег"], ["lightning", "Молнии"], ["leaves", "Падающие листья"], ["petals", "Лепестки"], ["embers", "Искры"]].forEach(([value, label]) => {
+          const option = document.createElement("option");
+          option.value = value;
+          option.textContent = label;
+          particleEffectSelect.append(option);
+        });
+        particleEffectSelect.value = particleEffects.includes(savedSettings.particleEffect) ? savedSettings.particleEffect : "snow";
+        particleEffectField.append(particleEffectLabel, particleEffectSelect);
+
+        const optimizationRow = document.createElement("div");
+        optimizationRow.className = "toggle-row";
+        const optimizationCopy = document.createElement("div");
+        const optimizationTitle = document.createElement("div");
+        optimizationTitle.className = "toggle-title";
+        optimizationTitle.textContent = "Режим оптимизации";
+        const optimizationSubtitle = document.createElement("div");
+        optimizationSubtitle.className = "toggle-subtitle";
+        optimizationSubtitle.textContent = "Убирает частицы и тяжёлые эффекты для слабых устройств";
+        optimizationCopy.append(optimizationTitle, optimizationSubtitle);
+        const optimizationSwitch = document.createElement("label");
+        optimizationSwitch.className = "switch";
+        optimizationToggle = document.createElement("input");
+        optimizationToggle.type = "checkbox";
+        optimizationToggle.dataset.setting = "optimizationMode";
+        optimizationToggle.setAttribute("aria-label", "Включить режим оптимизации");
+        optimizationToggle.checked = savedSettings.optimizationMode === true;
+        const optimizationTrack = document.createElement("span");
+        optimizationTrack.className = "switch-track";
+        optimizationSwitch.append(optimizationToggle, optimizationTrack);
+        optimizationRow.append(optimizationCopy, optimizationSwitch);
+        document.body.classList.toggle("optimization-mode", optimizationToggle.checked);
+        animationsRow.after(particleRow, particleEffectField, optimizationRow);
+      }
+
+      function syncParticleControls() {
+        const effectsEnabled = Boolean(particleToggle && particleToggle.checked && !(optimizationToggle && optimizationToggle.checked));
+        if (particleEffectField) particleEffectField.classList.toggle("is-disabled", !effectsEnabled);
+        if (particleEffectSelect) particleEffectSelect.disabled = !effectsEnabled;
+      }
+
+      function shouldAnimateParticles() {
+        return Boolean(particleToggle && particleToggle.checked && particleContext
+          && !(optimizationToggle && optimizationToggle.checked)
+          && (!animationToggle || animationToggle.checked)
+          && !(reducedMotionQuery && reducedMotionQuery.matches)
+          && document.visibilityState !== "hidden");
+      }
+
+      function resizeParticleCanvas() {
+        if (!particleCanvas || !particleContext) return;
+        particleWidth = window.innerWidth;
+        particleHeight = window.innerHeight;
+        particleScale = Math.min(window.devicePixelRatio || 1, 1.5);
+        particleCanvas.width = Math.round(particleWidth * particleScale);
+        particleCanvas.height = Math.round(particleHeight * particleScale);
+        particleContext.setTransform(particleScale, 0, 0, particleScale, 0, 0);
+        resetParticles();
+      }
+
+      function resetParticles() {
+        const effect = particleEffectSelect ? particleEffectSelect.value : "snow";
+        const count = Math.min(46, Math.max(18, Math.round(particleWidth / 22)));
+        particles = effect === "lightning" ? [] : Array.from({ length: count }, () => ({
+          x: Math.random() * particleWidth,
+          y: Math.random() * particleHeight,
+          size: 1.3 + Math.random() * (effect === "snow" ? 2.5 : 3.2),
+          speed: .45 + Math.random() * 1.15,
+          drift: .25 + Math.random() * .9,
+          phase: Math.random() * Math.PI * 2,
+          alpha: .3 + Math.random() * .55
+        }));
+        lightningTimer = 180 + Math.random() * 300;
+        lightningFlash = 0;
+        lightningPoints = [];
+      }
+
+      function drawParticle(particle, effect, time) {
+        const context = particleContext;
+        context.save();
+        context.globalAlpha = particle.alpha;
+        if (effect === "snow") {
+          context.fillStyle = "#eaf6ff";
+          context.shadowColor = "#b8dcff";
+          context.shadowBlur = 7;
+          context.beginPath();
+          context.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+          context.fill();
+        } else {
+          context.translate(particle.x, particle.y);
+          context.rotate(particle.phase + time * .00035);
+          if (effect === "leaves") {
+            context.fillStyle = ["#8ed6a2", "#d3b76f", "#7bbd8b"][Math.floor(particle.phase * 10) % 3];
+            context.beginPath();
+            context.ellipse(0, 0, particle.size * 1.35, particle.size * .65, 0, 0, Math.PI * 2);
+            context.fill();
+            context.strokeStyle = "rgba(255,255,255,.38)";
+            context.lineWidth = .6;
+            context.beginPath();
+            context.moveTo(-particle.size, 0);
+            context.lineTo(particle.size, 0);
+            context.stroke();
+          } else if (effect === "petals") {
+            context.fillStyle = ["#ffd5e5", "#e8d7ff", "#fff0c9"][Math.floor(particle.phase * 10) % 3];
+            context.beginPath();
+            context.ellipse(0, 0, particle.size * .7, particle.size * 1.25, 0, 0, Math.PI * 2);
+            context.fill();
+          } else {
+            context.fillStyle = "#ffb45e";
+            context.shadowColor = "#ff7b37";
+            context.shadowBlur = 9;
+            context.beginPath();
+            context.arc(0, 0, particle.size * .7, 0, Math.PI * 2);
+            context.fill();
+            context.strokeStyle = "rgba(255,178,92,.42)";
+            context.lineWidth = 1;
+            context.beginPath();
+            context.moveTo(0, particle.size * .7);
+            context.lineTo(0, particle.size * 2.6);
+            context.stroke();
+          }
+        }
+        context.restore();
+      }
+
+      function drawLightning(delta) {
+        if (lightningFlash <= 0) {
+          lightningTimer -= delta;
+          if (lightningTimer <= 0) {
+            let x = Math.random() * particleWidth;
+            lightningPoints = [{ x, y: 0 }];
+            for (let index = 1; index <= 8; index += 1) {
+              x += (Math.random() - .5) * 48;
+              lightningPoints.push({ x, y: particleHeight * .62 * index / 8 });
+            }
+            lightningFlash = 1;
+            lightningTimer = 240 + Math.random() * 300;
+          }
+        }
+        if (lightningFlash <= 0) return;
+        particleContext.fillStyle = `rgba(190,215,255,${lightningFlash * .035})`;
+        particleContext.fillRect(0, 0, particleWidth, particleHeight);
+        particleContext.save();
+        particleContext.globalAlpha = lightningFlash;
+        particleContext.strokeStyle = "rgba(220,237,255,.95)";
+        particleContext.lineWidth = 2;
+        particleContext.shadowColor = "#92caff";
+        particleContext.shadowBlur = 15;
+        particleContext.beginPath();
+        lightningPoints.forEach((point, index) => {
+          if (index === 0) particleContext.moveTo(point.x, point.y);
+          else particleContext.lineTo(point.x, point.y);
+        });
+        particleContext.stroke();
+        particleContext.restore();
+        lightningFlash = Math.max(0, lightningFlash - delta * .16);
+      }
+
+      function renderParticleFrame(time) {
+        particleFrame = 0;
+        if (!shouldAnimateParticles()) {
+          if (particleContext) particleContext.clearRect(0, 0, particleWidth, particleHeight);
+          return;
+        }
+        particleFrame = window.requestAnimationFrame(renderParticleFrame);
+        if (time - particleLastFrame < 32) return;
+        const delta = particleLastFrame ? Math.min(2, (time - particleLastFrame) / 16.67) : 1;
+        particleLastFrame = time;
+        particleContext.clearRect(0, 0, particleWidth, particleHeight);
+        const effect = particleEffectSelect ? particleEffectSelect.value : "snow";
+        if (effect === "lightning") {
+          drawLightning(delta);
+          return;
+        }
+        particles.forEach((particle) => {
+          particle.y += particle.speed * delta;
+          particle.x += Math.sin(time * .001 + particle.phase) * particle.drift * delta;
+          if (particle.y > particleHeight + 12) {
+            particle.y = -12 - Math.random() * 40;
+            particle.x = Math.random() * particleWidth;
+          }
+          if (particle.x < -12) particle.x = particleWidth + 8;
+          else if (particle.x > particleWidth + 12) particle.x = -8;
+          drawParticle(particle, effect, time);
+        });
+      }
+
+      function syncParticleAnimation() {
+        if (!shouldAnimateParticles()) {
+          if (particleFrame) window.cancelAnimationFrame(particleFrame);
+          particleFrame = 0;
+          particleLastFrame = 0;
+          if (particleContext) particleContext.clearRect(0, 0, particleWidth, particleHeight);
+          return;
+        }
+        if (particleFrame) return;
+        resizeParticleCanvas();
+        particleLastFrame = 0;
+        particleFrame = window.requestAnimationFrame(renderParticleFrame);
+      }
+
+      if (particleToggle) {
+        particleToggle.addEventListener("change", () => {
+          savedSettings.particles = particleToggle.checked;
+          saveSettings();
+          syncParticleControls();
+          syncParticleAnimation();
+        });
+      }
+      if (optimizationToggle) {
+        optimizationToggle.addEventListener("change", () => {
+          savedSettings.optimizationMode = optimizationToggle.checked;
+          saveSettings();
+          document.body.classList.toggle("optimization-mode", optimizationToggle.checked);
+          syncParticleControls();
+          syncParticleAnimation();
+        });
+      }
+      syncParticleControls();
+      if (particleEffectSelect) {
+        particleEffectSelect.addEventListener("change", () => {
+          savedSettings.particleEffect = particleEffectSelect.value;
+          saveSettings();
+          resetParticles();
+          syncParticleAnimation();
+        });
+      }
+      if (animationToggle) animationToggle.addEventListener("change", syncParticleAnimation);
+      document.addEventListener("visibilitychange", syncParticleAnimation);
+      window.addEventListener("resize", resizeParticleCanvas);
+      if (reducedMotionQuery) {
+        if (typeof reducedMotionQuery.addEventListener === "function") reducedMotionQuery.addEventListener("change", syncParticleAnimation);
+        else if (typeof reducedMotionQuery.addListener === "function") reducedMotionQuery.addListener(syncParticleAnimation);
+      }
       function readVersionProfiles() {
         try {
           const parsed = JSON.parse(readStorage("neeflow-version-profiles", "[]"));
@@ -2427,20 +2830,33 @@
 
       const ramRange = document.querySelector("[data-ram-range]");
       const ramValue = document.querySelector("[data-ram-value]");
-      if (isNativeAndroid && nativeRuntimeSettings && !nativeRuntimeSettings.error) {
-        const maximum = Math.max(256, Number(nativeRuntimeSettings.maxAllocation) || 2048);
-        const allocation = Math.max(256, Math.min(maximum, Number(nativeRuntimeSettings.allocation) || 1024));
-        ramRange.min = "256";
-        ramRange.max = String(maximum);
-        ramRange.step = "8";
-        ramRange.value = String(allocation);
-        document.querySelector("[data-ram-help]").textContent = "Это реальный лимит памяти Java в Amethyst. Оставляй запас для Android и других приложений.";
+      const ramHelp = document.querySelector("[data-ram-help]");
+      if (isNativeAndroid) {
+        const reportedMaximum = Number(nativeRuntimeSettings && !nativeRuntimeSettings.error ? nativeRuntimeSettings.maxAllocation : NaN);
+        if (Number.isFinite(reportedMaximum) && reportedMaximum >= 256) {
+          const maximum = 256 + Math.floor((reportedMaximum - 256) / 8) * 8;
+          const allocation = Math.max(256, Math.min(maximum, Number(nativeRuntimeSettings.allocation) || 1024));
+          const deviceRam = Number(nativeRuntimeSettings.deviceMemory);
+          const deviceDescription = Number.isFinite(deviceRam) && deviceRam >= 256
+            ? `Устройство: ${(deviceRam / 1024).toFixed(1).replace(".", ",")} ГБ RAM. `
+            : "";
+          ramRange.disabled = false;
+          ramRange.min = "256";
+          ramRange.max = String(maximum);
+          ramRange.step = "8";
+          ramRange.value = String(allocation);
+          ramHelp.textContent = `${deviceDescription}Для Java доступно до ${(maximum / 1024).toFixed(1).replace(".", ",")} ГБ; остальная память оставлена Android и приложениям.`;
+        } else {
+          ramRange.disabled = true;
+          ramHelp.textContent = "Не удалось определить лимит памяти устройства. Перезапусти лаунчер и проверь настройки Amethyst.";
+        }
       } else {
+        ramRange.disabled = false;
         ramRange.min = "256";
         ramRange.max = "2048";
         ramRange.step = "8";
         ramRange.value = String(Math.max(256, Math.min(2048, Number(savedSettings.allocation) || 1024)));
-        document.querySelector("[data-ram-help]").textContent = "Веб-предпросмотр не применяет объём памяти к игре; настройка доступна в Android APK.";
+        ramHelp.textContent = "Веб-предпросмотр не применяет объём памяти к игре; настройка доступна в Android APK.";
       }
       const updateRamValue = () => { ramValue.textContent = `${(Number(ramRange.value) / 1024).toFixed(1)} ГБ`; };
       updateRamValue();
@@ -2799,6 +3215,7 @@
         settingsGrid.append(section);
       });
 
+      syncParticleAnimation();
       renderUsername();
       setTheme(document.body.dataset.theme);
     })();

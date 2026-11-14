@@ -250,6 +250,7 @@ public class NeeflowLauncherFragment extends Fragment {
                 return new JSONObject()
                         .put("resolutionRatio", resolutionRatio)
                         .put("allocation", allocation)
+                        .put("deviceMemory", Tools.getTotalDeviceMemory(requireContext()))
                         .put("maxAllocation", getMaxRamAllocation())
                         .put("javaArgs", LauncherPreferences.DEFAULT_PREF.getString("javaArgs", ""))
                         .put("forceVsync", LauncherPreferences.DEFAULT_PREF.getBoolean("force_vsync", LauncherPreferences.PREF_FORCE_VSYNC))
