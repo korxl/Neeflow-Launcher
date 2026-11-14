@@ -89,6 +89,7 @@ public class NeeflowLauncherFragment extends Fragment {
     public View onCreateView(@NonNull android.view.LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         webView = new WebView(requireContext());
         webView.setBackgroundColor(Color.rgb(11, 12, 15));
+        webView.setInitialScale(90);
         webView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);

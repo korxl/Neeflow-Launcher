@@ -54,10 +54,10 @@ def main() -> None:
         raise RuntimeError("Could not find Amethyst application identifiers")
     gradle_text = gradle_text.replace("org.angelauramc.amethyst", "com.neeflow.launcher")
     for old, new in (
-        ('resValue "string", "app_name", "Amethyst (Debug)"', 'resValue "string", "app_name", "Neeflow Launcher"'),
-        ('resValue "string", "app_short_name", "Amethyst (Debug)"', 'resValue "string", "app_short_name", "Neeflow"'),
-        ('resValue "string", "app_name", "Amethyst"', 'resValue "string", "app_name", "Neeflow Launcher"'),
-        ('resValue "string", "app_short_name", "Amethyst"', 'resValue "string", "app_short_name", "Neeflow"'),
+        ('resValue "string", "app_name", "Amethyst (Debug)"', 'resValue "string", "app_name", "NeeflowLauncher"'),
+        ('resValue "string", "app_short_name", "Amethyst (Debug)"', 'resValue "string", "app_short_name", "NeeflowLauncher"'),
+        ('resValue "string", "app_name", "Amethyst"', 'resValue "string", "app_name", "NeeflowLauncher"'),
+        ('resValue "string", "app_short_name", "Amethyst"', 'resValue "string", "app_short_name", "NeeflowLauncher"'),
         ("            signingConfig signingConfigs.customDebug\n", ""),
     ):
         gradle_text = replace_once(gradle_text, old, new, f"Gradle setting in {gradle_file}")
@@ -67,20 +67,26 @@ def main() -> None:
     edit_file(manifest, [
         ('android:icon="@mipmap/ic_launcher"', 'android:icon="@drawable/ic_neeflow_launcher"'),
         ('android:roundIcon="@mipmap/ic_launcher_round"', 'android:roundIcon="@drawable/ic_neeflow_launcher"'),
+        ('android:launchMode="singleTop">', 'android:launchMode="singleTop"\n            android:screenOrientation="sensorLandscape">'),
+        ('android:windowSoftInputMode="adjustResize"/>', 'android:windowSoftInputMode="adjustResize"\n            android:screenOrientation="sensorLandscape"/>'),
     ])
 
-    icon_source = repo_root / "android/app/src/main/res/drawable/ic_launcher.xml"
-    icon_target = app_root / "src/main/res/drawable/ic_neeflow_launcher.xml"
+    icon_source = repo_root / "assets/neeflow-app-icon.png"
+    icon_target = app_root / "src/main/res/drawable-nodpi/ic_neeflow_launcher.png"
     if not icon_source.is_file():
         raise SystemExit(f"Neeflow launcher icon not found at {icon_source}")
+    icon_target.parent.mkdir(parents=True, exist_ok=True)
     icon_target.write_bytes(icon_source.read_bytes())
+    legacy_icon = app_root / "src/main/res/drawable/ic_neeflow_launcher.xml"
+    if legacy_icon.exists():
+        legacy_icon.unlink()
 
     values = app_root / "src/main/res/values/strings.xml"
     edit_file(values, [
-        ('<string name="app_name" translatable="false">Amethyst</string>', '<string name="app_name" translatable="false">Neeflow Launcher</string>'),
+        ('<string name="app_name" translatable="false">Amethyst</string>', '<string name="app_name" translatable="false">NeeflowLauncher</string>'),
         ('<string name="login_online_username_hint">Username</string>', '<string name="login_online_username_hint">Local player name</string>'),
         ('<string name="login_online_login_label">Login</string>', '<string name="login_online_login_label">Continue offline</string>'),
-        ('<string name="error_fatal">Amethyst has unexpectedly crashed</string>', '<string name="error_fatal">Neeflow Launcher has unexpectedly crashed</string>'),
+        ('<string name="error_fatal">Amethyst has unexpectedly crashed</string>', '<string name="error_fatal">NeeflowLauncher has unexpectedly crashed</string>'),
     ])
 
     auth_selector = app_root / "src/main/java/net/kdt/pojavlaunch/fragments/SelectAuthFragment.java"
@@ -105,7 +111,46 @@ def main() -> None:
         ('android:inputType="textEmailAddress"', 'android:inputType="textPersonName|textNoSuggestions"'),
     ])
 
+    minecraft_downloader = app_root / "src/main/java/net/kdt/pojavlaunch/tasks/MinecraftDownloader.java"
+    edit_file(minecraft_downloader, [
+        ('if(isLocalProfile || !isOnline) {', 'if(!isOnline) {'),
+        ('''        File versionJsonFile;
+        if(verInfo != null) versionJsonFile = downloadGameJson(verInfo);
+        else versionJsonFile = createGameJsonPath(versionName);
+        if(versionJsonFile.canRead())  {''', '''        File versionJsonFile;
+        if(verInfo != null) {
+            versionJsonFile = downloadGameJson(verInfo);
+        } else {
+            versionJsonFile = createGameJsonPath(versionName);
+            if(!versionJsonFile.canRead() && isOnline) {
+                JMinecraftVersionList.Version listedVersion = resolveListedVersion(versionName);
+                if(listedVersion != null) versionJsonFile = downloadGameJson(listedVersion);
+            }
+        }
+        if(versionJsonFile.canRead())  {'''),
+        ('    private boolean downloadAndProcessMetadata(Activity activity, JMinecraftVersionList.Version verInfo, String versionName) throws IOException, MirrorTamperedException {', '''    private JMinecraftVersionList.Version resolveListedVersion(String versionName) throws IOException {
+        JMinecraftVersionList.Version cachedVersion = AsyncMinecraftDownloader.getListedVersion(versionName);
+        if(cachedVersion != null) return cachedVersion;
+
+        String manifestUrl = Tools.isValidString(LauncherPreferences.PREF_VERSION_REPOS)
+                ? LauncherPreferences.PREF_VERSION_REPOS
+                : "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
+        JMinecraftVersionList manifest = Tools.GLOBAL_GSON.fromJson(
+                DownloadUtils.downloadString(manifestUrl), JMinecraftVersionList.class);
+        if(manifest == null || manifest.versions == null) return null;
+        for(JMinecraftVersionList.Version listedVersion : manifest.versions) {
+            if(listedVersion != null && versionName.equals(listedVersion.id)) return listedVersion;
+        }
+        return null;
+    }
+
+    private boolean downloadAndProcessMetadata(Activity activity, JMinecraftVersionList.Version verInfo, String versionName) throws IOException, MirrorTamperedException {'''),
+    ])
+
     launcher_activity = app_root / "src/main/java/net/kdt/pojavlaunch/LauncherActivity.java"
+    edit_file(launcher_activity, [
+        ('if (mAccountSpinner.getSelectedAccount().isLocal() || !isOnline(this)){', 'if (!isOnline(this)){'),
+    ])
     edit_file(launcher_activity, [
         ('import net.kdt.pojavlaunch.fragments.MainMenuFragment;\n', 'import net.kdt.pojavlaunch.fragments.MainMenuFragment;\nimport net.kdt.pojavlaunch.fragments.NeeflowLauncherFragment;\n'),
         ('.add(R.id.container_fragment, MainMenuFragment.class, null, "ROOT").commit();', '.add(R.id.container_fragment, NeeflowLauncherFragment.class, null, "ROOT").commit();'),
