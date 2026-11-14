@@ -125,6 +125,7 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.webView evaluateJavaScript:@"window.__neeflowRefreshNativeProfiles&&window.__neeflowRefreshNativeProfiles()" completionHandler:nil];
+    [self.webView evaluateJavaScript:@"window.__neeflowRefreshJitServerStatus&&window.__neeflowRefreshJitServerStatus()" completionHandler:nil];
 }
 
 - (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt
@@ -471,10 +472,66 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
     return [value isKindOfClass:NSDictionary.class] ? value : nil;
 }
 
+- (NSString *)jitServerStatus {
+    id configuredValue = getPrefObject(@"general.jitstreamer_server");
+    NSString *address = [configuredValue isKindOfClass:NSString.class] ? [configuredValue stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet] : @"";
+    if (address.length == 0) return [self jsonString:@{@"configured": @NO, @"reachable": @NO, @"message": @"Адрес JIT-сервера не задан."}];
+    if (![address containsString:@"://"]) address = [@"http://" stringByAppendingString:address];
+
+    NSURLComponents *components = [NSURLComponents componentsWithString:address];
+    if (!components.host.length || ![@[@"http", @"https"] containsObject:components.scheme.lowercaseString] || components.query.length || components.fragment.length || components.user.length || components.password.length || (components.path.length > 0 && ![components.path isEqualToString:@"/"])) {
+        return [self jsonString:@{@"configured": @YES, @"reachable": @NO, @"message": @"Неверный адрес JIT-сервера. Укажи хост или URL без пути."}];
+    }
+
+    NSString *baseURL = components.URL.absoluteString;
+    while ([baseURL hasSuffix:@"/"]) baseURL = [baseURL substringToIndex:baseURL.length - 1];
+    NSURL *versionURL = [NSURL URLWithString:[baseURL stringByAppendingString:@"/version"]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:versionURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:3];
+    [request setValue:@"text/plain, application/json;q=0.9, */*;q=0.8" forHTTPHeaderField:@"Accept"];
+    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+    configuration.timeoutIntervalForRequest = 3;
+    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    __block NSData *responseData = nil;
+    __block NSURLResponse *response = nil;
+    __block NSError *requestError = nil;
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *responseObject, NSError *failure) {
+        responseData = data;
+        response = responseObject;
+        requestError = failure;
+        dispatch_semaphore_signal(semaphore);
+    }];
+    [task resume];
+
+    BOOL completed = dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC)) == 0;
+    BOOL reachable = completed && !requestError && [response isKindOfClass:NSHTTPURLResponse.class] && ((NSHTTPURLResponse *)response).statusCode >= 200 && ((NSHTTPURLResponse *)response).statusCode < 300;
+    if (!completed) [task cancel];
+    [session finishTasksAndInvalidate];
+
+    NSString *version = @"";
+    if (reachable && responseData.length > 0) {
+        NSString *body = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
+        version = [body stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet] ?: @"";
+        if (version.length > 80) version = [version substringToIndex:80];
+    }
+    NSString *message = @"Сервер не ответил на /version.";
+    if (reachable) {
+        message = @"Сервер отвечает на /version.";
+    } else if (requestError.localizedDescription.length > 0) {
+        message = requestError.localizedDescription;
+    } else if (!completed) {
+        message = @"Истекло время ожидания ответа сервера.";
+    } else if ([response isKindOfClass:NSHTTPURLResponse.class]) {
+        message = [NSString stringWithFormat:@"Сервер вернул HTTP %ld.", (long)((NSHTTPURLResponse *)response).statusCode];
+    }
+    return [self jsonString:@{@"configured": @YES, @"reachable": @(reachable), @"version": version, @"message": message}];
+}
+
 - (NSString *)fetchApi:(NSArray *)arguments {
     if (arguments.count < 1 || ![arguments[0] isKindOfClass:NSString.class]) return [self error:@"Invalid API route"];
     NSString *route = arguments[0];
     NSError *error = nil;
+    if ([route isEqualToString:@"/api/jit/status"]) return [self jitServerStatus];
     if ([route isEqualToString:@"/api/minecraft/catalog"]) {
         NSDictionary *manifest = [self fetchJSON:@"https://piston-meta.mojang.com/mc/game/version_manifest_v2.json" error:&error];
         if (!manifest) return [self error:error.localizedDescription ?: @"Could not load Mojang's version manifest"];

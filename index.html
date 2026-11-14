@@ -249,6 +249,15 @@
     .mini-stat-value { margin-top: 5px; font-size: 16px; font-weight: 760; }
     .edit-link { display: inline-flex; align-items: center; gap: 5px; padding: 7px 0; border: 0; background: transparent; color: var(--accent); font-size: 10px; font-weight: 700; cursor: pointer; }
     .edit-link svg { width: 13px; height: 13px; }
+    .jit-server-card { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 15px; padding: 17px 20px; }
+    .jit-server-copy { min-width: 0; }
+    .jit-server-description { max-width: 700px; margin: 7px 0 0; color: var(--muted); font-size: 10px; line-height: 1.55; }
+    .jit-server-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 9px; }
+    .jit-server-status { display: inline-flex; align-items: center; gap: 7px; min-height: 32px; padding: 0 10px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .jit-server-dot { width: 7px; height: 7px; flex: 0 0 7px; border-radius: 50%; background: currentColor; }
+    .jit-server-status[data-state="online"] { border-color: rgba(48, 209, 88, .3); color: var(--good); }
+    .jit-server-status[data-state="offline"] { border-color: rgba(255, 69, 58, .3); color: #ff6961; }
+    .jit-server-status[data-state="checking"] { border-color: rgba(var(--accent-rgb), .25); color: var(--accent-2); }
 
     .lower-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(245px, .85fr); gap: 15px; margin-top: 15px; }
     .section-card { padding: 20px; }
@@ -353,6 +362,8 @@
       .content-grid, .lower-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 12px; }
       .version-card, .profile-card, .section-card { padding: 17px; }
       .profile-card { min-height: 185px; }
+      .jit-server-card { align-items: flex-start; flex-direction: column; gap: 12px; margin-top: 12px; padding: 16px; }
+      .jit-server-actions { flex-wrap: wrap; }
       .page-head { margin: 5px 0 18px; }
       .page-title { font-size: 30px; }
       .settings-grid { grid-template-columns: 1fr; gap: 12px; }
@@ -1043,6 +1054,17 @@
             <div class="profile-bottom"><div><div class="mini-stat-label">Профилей версий</div><div class="mini-stat-value"><span data-version-count>0</span> <span style="color:var(--muted);font-size:11px;font-weight:550">сохранено</span></div></div><button class="edit-link" type="button" data-view-button="settings">Изменить ник<svg viewBox="0 0 24 24" fill="none"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
           </article>
         </div>
+        <article class="card jit-server-card" data-jit-server-card>
+          <div class="jit-server-copy">
+            <div class="card-heading"><div><h2 class="card-title">JIT-сервер</h2><div class="card-label">JitStreamer (legacy) · проверка доступности</div></div></div>
+            <p class="jit-server-description" data-jit-server-description>Открой Neeflow на iPhone, чтобы проверить сервер в приложении.</p>
+          </div>
+          <div class="jit-server-actions">
+            <span class="jit-server-status" data-state="checking" data-jit-server-status role="status" aria-live="polite"><span class="jit-server-dot" aria-hidden="true"></span><span data-jit-server-label>Проверяем…</span></span>
+            <button class="button button-quiet small-button" type="button" data-jit-refresh>Проверить</button>
+            <button class="button button-quiet small-button" type="button" data-jit-settings>Настройки</button>
+          </div>
+        </article>
 
       </section>
 
@@ -1257,6 +1279,56 @@
 
       const nativePlatform = isNativeAndroid ? androidCall("getPlatform") : null;
       const isNativeIOS = Boolean(nativePlatform && nativePlatform.platform === "ios");
+      const jitServerStatus = document.querySelector("[data-jit-server-status]");
+      const jitServerLabel = document.querySelector("[data-jit-server-label]");
+      const jitServerDescription = document.querySelector("[data-jit-server-description]");
+      const jitRefreshButton = document.querySelector("[data-jit-refresh]");
+      let jitStatusRequest = 0;
+
+      function setJitServerStatus(state, label, description) {
+        jitServerStatus.dataset.state = state;
+        jitServerLabel.textContent = label;
+        jitServerDescription.textContent = description;
+      }
+
+      async function refreshJitServerStatus() {
+        const requestId = ++jitStatusRequest;
+        if (!isNativeIOS) {
+          setJitServerStatus("preview", isNativeAndroid ? "Только iOS" : "Только в приложении", isNativeAndroid ? "Проверка JitStreamer доступна только в iOS-версии Neeflow." : "Веб-превью не видит сохранённые настройки iPhone и не может проверить локальный JIT-сервер.");
+          return;
+        }
+        setJitServerStatus("checking", "Проверяем…", "Проверяем ответ JitStreamer. Это не подтверждает, что JIT уже подключён к игре.");
+        jitRefreshButton.disabled = true;
+        try {
+          const response = await fetch("/api/jit/status", { headers: { accept: "application/json" } });
+          const status = await readJsonResponse(response);
+          if (!response.ok || status.error) throw new Error(status.message || status.error || `HTTP ${response.status}`);
+          if (!status.configured) {
+            setJitServerStatus("disabled", "Выключен", "Адрес JitStreamer не задан в настройках Amethyst. Другие JIT-провайдеры iOS здесь не отображаются.");
+          } else if (status.reachable) {
+            const version = status.version ? ` Версия сервера: ${status.version}.` : "";
+            setJitServerStatus("online", "Включён", `JitStreamer отвечает на /version.${version} Доступность сервера не гарантирует подключение JIT к игре.`);
+          } else {
+            setJitServerStatus("offline", "Не отвечает", `${status.message || "JitStreamer не ответил на /version."} Проверь адрес и сеть.`);
+          }
+        } catch (error) {
+          if (requestId === jitStatusRequest) setJitServerStatus("offline", "Статус недоступен", error.message || "Не удалось проверить JIT-сервер.");
+        } finally {
+          if (requestId === jitStatusRequest) jitRefreshButton.disabled = false;
+        }
+      }
+
+      window.__neeflowRefreshJitServerStatus = refreshJitServerStatus;
+      jitRefreshButton.addEventListener("click", refreshJitServerStatus);
+      document.querySelector("[data-jit-settings]").addEventListener("click", () => {
+        if (!isNativeIOS) {
+          showToast("Настройки JIT-сервера доступны в приложении Neeflow для iOS.");
+          return;
+        }
+        const result = androidCall("openRuntimeSettings");
+        if (!result || result.error) showToast(result && result.error ? result.error : "Не удалось открыть настройки Amethyst.");
+      });
+      refreshJitServerStatus();
 
       function persistNativeProfile(profile) {
         if (!isNativeAndroid) return true;
@@ -1316,6 +1388,7 @@
         if (viewName === "settings" && nameInput) nameInput.value = username === "Guest" ? "" : username;
         if (viewName === "modpacks" && !modrinthLoaded) searchModrinth();
         if (viewName === "versions") loadOfficialMinecraftCatalog();
+        if (viewName === "home") refreshJitServerStatus();
         if (viewName === "files" && isNativeAndroid) {
           if (isNativeIOS) {
             renderGameFolder("");
