@@ -4,7 +4,9 @@
 from pathlib import Path
 import re
 import shutil
+import subprocess
 import sys
+import tempfile
 
 BUNDLE_ID = "com.neeflow.launcher.ios"
 
@@ -46,9 +48,12 @@ def main() -> None:
         natives / "CMakeLists.txt",
         natives / "LauncherMenuViewController.m",
         natives / "LauncherMenuViewController.h",
+        natives / "LauncherSplitViewController.m",
         natives / "PLPreferences.m",
-        natives / "LauncherPreferencesViewController.m",
         natives / "Info.plist",
+        natives / "Assets.xcassets/AppIcon-Light.appiconset/Contents.json",
+        natives / "Assets.xcassets/AppIcon-Dark.appiconset/Contents.json",
+        natives / "Assets.xcassets/AppIcon-Development.appiconset/Contents.json",
         resources / "en.lproj/Localizable.strings",
         source_root / "Makefile",
         source_root / "entitlements.sideload.xml",
@@ -70,6 +75,20 @@ def main() -> None:
     for asset_name in ("alex.png", "steve.png", "neeflow-app-icon.png"):
         shutil.copy2(repo_root / "assets" / asset_name, web_root / "assets" / asset_name)
 
+    icon_source = repo_root / "assets/neeflow-app-icon.png"
+    icon_targets = (
+        "Assets.xcassets/AppIcon-Light.appiconset/1024x1024.png",
+        "Assets.xcassets/AppIcon-Light.appiconset/1024x1024-Transparent.png",
+        "Assets.xcassets/AppIcon-Light.appiconset/1024x1024-Monochrome-White.png",
+        "Assets.xcassets/AppIcon-Dark.appiconset/AppIcon-Dark_1024x1024.png",
+        "Assets.xcassets/AppIcon-Development.appiconset/AppIcon-Development_1024x1024.png",
+    )
+    with tempfile.TemporaryDirectory(prefix="neeflow-ios-icon-") as temp_dir:
+        resized_icon = Path(temp_dir) / "neeflow-app-icon-1024.png"
+        subprocess.run(["sips", "-z", "1024", "1024", str(icon_source), "--out", str(resized_icon)], check=True)
+        for relative_path in icon_targets:
+            shutil.copy2(resized_icon, natives / relative_path)
+
     for filename in ("NeeflowLauncherViewController.h", "NeeflowLauncherViewController.m"):
         shutil.copy2(repo_root / "ios/amethyst/Natives" / filename, natives / filename)
 
@@ -78,6 +97,26 @@ def main() -> None:
         "  LauncherNewsViewController.m\n",
         "  LauncherNewsViewController.m\n  NeeflowLauncherViewController.m\n",
         "Neeflow controller source in CMakeLists.txt",
+    )
+
+    split_view = natives / "LauncherSplitViewController.m"
+    patch_once(
+        split_view,
+        '#import "LauncherProfilesViewController.h"\n',
+        '#import "LauncherProfilesViewController.h"\n#import "NeeflowLauncherViewController.h"\n',
+        "Neeflow controller import in split view",
+    )
+    patch_once(
+        split_view,
+        'LauncherNavigationController *detailVc = [[LauncherNavigationController alloc] initWithRootViewController:[[LauncherProfilesViewController alloc] init]];\n    detailVc.toolbarHidden = NO;',
+        'LauncherNavigationController *detailVc = [[LauncherNavigationController alloc] initWithRootViewController:[[NeeflowLauncherViewController alloc] init]];\n    detailVc.toolbarHidden = YES;\n    detailVc.navigationBarHidden = YES;',
+        "Neeflow as the iOS home screen",
+    )
+    patch_once(
+        split_view,
+        '        if(!getPrefBool(@"general.hidden_sidebar")) {',
+        '        if(realUIIdiom != UIUserInterfaceIdiomPhone && !getPrefBool(@"general.hidden_sidebar")) {',
+        "hide the Amethyst sidebar on iPhone",
     )
 
     menu_header = natives / "LauncherMenuViewController.h"
@@ -164,41 +203,21 @@ def main() -> None:
         "legacy JitStreamer preference default",
     )
 
-    settings = natives / "LauncherPreferencesViewController.m"
-    settings_anchor = '            @{' + '@\"key\": @\"appicon\",'
-    settings_insert = (
-        '            @{' + '@\"key\": @\"jitstreamer_server\",\n'
-        '              @\"hasDetail\": @YES,\n'
-        '              @\"icon\": @\"hare\",\n'
-        '              @\"type\": self.typeTextField,\n'
-        '              @\"placeholder\": @\"host or http://host:port\",\n'
-        '              @\"enableCondition\": whenNotInGame\n'
-        '            },\n            @{' + '@\"key\": @\"appicon\",'
-    )
-    patch_once(settings, settings_anchor, settings_insert, "legacy JitStreamer settings row")
-
-    localization = resources / "en.lproj/Localizable.strings"
-    localized = localization.read_text(encoding="utf-8")
-    if '"preference.title.jitstreamer_server"' not in localized:
-        localized += '\n"preference.title.jitstreamer_server" = "Legacy JitStreamer server";\n'
-        localized += '"preference.detail.jitstreamer_server" = "Optional legacy JitStreamer host for iOS 14–16. JitStreamer is deprecated and may not work on modern iOS. Newer iOS versions use Amethyst’s supported JIT providers.";\n'
-        localization.write_text(localized, encoding="utf-8")
-
     info = natives / "Info.plist"
     info_text = info.read_text(encoding="utf-8")
     display_name = '<key>CFBundleDisplayName</key>\n\t<string>Amethyst</string>'
     bundle_name = '<key>CFBundleName</key>\n\t<string>AngelAuraAmethyst</string>'
     if display_name in info_text:
-        info_text = replace_once(info_text, display_name, '<key>CFBundleDisplayName</key>\n\t<string>NeeflowLauncher</string>', "iOS display name")
-    elif '<key>CFBundleDisplayName</key>\n\t<string>NeeflowLauncher</string>' not in info_text:
+        info_text = replace_once(info_text, display_name, '<key>CFBundleDisplayName</key>\n\t<string>Neeflow</string>', "iOS display name")
+    elif '<key>CFBundleDisplayName</key>\n\t<string>Neeflow</string>' not in info_text:
         raise RuntimeError(f"Could not find iOS display name in {info}")
     if bundle_name in info_text:
-        info_text = replace_once(info_text, bundle_name, '<key>CFBundleName</key>\n\t<string>NeeflowLauncher</string>', "iOS bundle name")
-    elif '<key>CFBundleName</key>\n\t<string>NeeflowLauncher</string>' not in info_text:
+        info_text = replace_once(info_text, bundle_name, '<key>CFBundleName</key>\n\t<string>Neeflow</string>', "iOS bundle name")
+    elif '<key>CFBundleName</key>\n\t<string>Neeflow</string>' not in info_text:
         raise RuntimeError(f"Could not find iOS bundle name in {info}")
     info_text = info_text.replace("org.angelauramc.amethyst", BUNDLE_ID)
     network_description = '<key>NSLocalNetworkUsageDescription</key>\n\t<string>Angel Aura Amethyst uses the local network to find and communicate with AltServer and LAN servers.</string>'
-    network_replacement = '<key>NSLocalNetworkUsageDescription</key>\n\t<string>Neeflow uses the local network for Amethyst JIT services and LAN servers.</string>\n\t<key>NSAppTransportSecurity</key>\n\t<dict>\n\t\t<key>NSAllowsLocalNetworking</key>\n\t\t<true/>\n\t</dict>'
+    network_replacement = '<key>NSLocalNetworkUsageDescription</key>\n\t<string>Neeflow uses the local network for the optional legacy JIT server and Minecraft LAN servers.</string>\n\t<key>NSAppTransportSecurity</key>\n\t<dict>\n\t\t<key>NSAllowsLocalNetworking</key>\n\t\t<true/>\n\t</dict>'
     if network_replacement not in info_text:
         info_text = replace_once(info_text, network_description, network_replacement, "local network description and local HTTP policy")
     info.write_text(info_text, encoding="utf-8")
@@ -210,7 +229,7 @@ def main() -> None:
     info_strings = resources / "en.lproj/InfoPlist.strings"
     if info_strings.is_file():
         strings = info_strings.read_text(encoding="utf-8")
-        strings = re.sub(r'("CFBundleDisplayName"\s*=\s*)"[^"]*";', r'\1"NeeflowLauncher";', strings)
+        strings = re.sub(r'("CFBundleDisplayName"\s*=\s*)"[^"]*";', r'\1"Neeflow";', strings)
         info_strings.write_text(strings, encoding="utf-8")
 
 

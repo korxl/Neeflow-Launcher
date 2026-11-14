@@ -20,6 +20,7 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
 - (NSString *)jsonString:(NSDictionary *)value;
 - (NSString *)error:(NSString *)message;
 - (NSString *)fetchApi:(NSArray *)arguments;
+- (NSString *)setJitServerAddress:(NSArray *)arguments;
 @end
 
 @interface NeeflowScriptMessageHandler : NSObject <WKScriptMessageHandler>
@@ -52,7 +53,7 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
 
     NSString *bridge =
         @"(function(){if(window.NeeflowAndroid)return;"
-        @"var methods=['getLauncherState','getRuntimeSettings','setRuntimeSetting','saveProfile','selectProfile','deleteProfile','saveUsername','launchGame','installLoader','listGameFiles','openGameFolder','openGameFile','openTouchControls','openRuntimeSettings','getPlatform'];"
+        @"var methods=['getLauncherState','getRuntimeSettings','setRuntimeSetting','saveProfile','selectProfile','deleteProfile','saveUsername','launchGame','installLoader','listGameFiles','openGameFolder','openGameFile','openTouchControls','openRuntimeSettings','getJitServerAddress','setJitServerAddress','getPlatform'];"
         @"window.NeeflowAndroid={};methods.forEach(function(name){window.NeeflowAndroid[name]=function(){return window.prompt('__NEEFLOW_BRIDGE__',JSON.stringify({method:name,args:Array.prototype.slice.call(arguments)}))}});"
         @"var pending=Object.create(null),next=0;"
         @"window.__neeflowResolveApi=function(message){var resolve=pending[message.id];if(!resolve)return;delete pending[message.id];var body=typeof message.body==='string'?message.body:'{}';var data;try{data=JSON.parse(body)}catch(e){data={error:'Invalid native API response'}};resolve({ok:!data.error,status:data.error?502:200,json:function(){return Promise.resolve(data)},text:function(){return Promise.resolve(body)}})};"
@@ -87,9 +88,6 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
     NSURL *pageURL = [NSURL fileURLWithPath:pagePath];
     [self.webView loadFileURL:pageURL allowingReadAccessToURL:pageURL.URLByDeletingLastPathComponent];
 
-    self.navigationItem.leftBarButtonItem = self.splitViewController.displayModeButtonItem;
-    self.navigationItem.rightBarButtonItem = [sidebarViewController drawAccountButton];
-    self.navigationItem.leftItemsSupplementBackButton = YES;
 }
 
 - (void)resolveApiRequest:(NSString *)identifier body:(NSString *)body {
@@ -180,6 +178,11 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
         if ([method isEqualToString:@"getLauncherState"]) return [self launcherState];
         if ([method isEqualToString:@"getRuntimeSettings"]) return [self runtimeSettings];
         if ([method isEqualToString:@"setRuntimeSetting"]) return [self setRuntimeSetting:arguments];
+        if ([method isEqualToString:@"getJitServerAddress"]) {
+            id address = getPrefObject(@"general.jitstreamer_server");
+            return [self jsonString:@{@"address": [address isKindOfClass:NSString.class] ? address : @""}];
+        }
+        if ([method isEqualToString:@"setJitServerAddress"]) return [self setJitServerAddress:arguments];
         if ([method isEqualToString:@"saveProfile"]) return [self saveProfile:arguments];
         if ([method isEqualToString:@"selectProfile"]) return [self selectProfile:arguments];
         if ([method isEqualToString:@"deleteProfile"]) return [self deleteProfile:arguments];
@@ -262,6 +265,21 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
                               @"maxAllocation": @(self.maxAllocation),
                               @"javaArgs": getPrefObject(@"java.java_args") ?: @"",
                               @"forceVsync": @YES}];
+}
+
+- (NSString *)setJitServerAddress:(NSArray *)arguments {
+    if (arguments.count < 1 || ![arguments[0] isKindOfClass:NSString.class]) return [self error:@"Invalid JIT server address."];
+    NSString *address = [arguments[0] stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
+    if (address.length > 255) return [self error:@"JIT server addresses cannot exceed 255 characters."];
+    if (address.length > 0) {
+        NSString *candidate = [address containsString:@"://"] ? address : [@"http://" stringByAppendingString:address];
+        NSURLComponents *components = [NSURLComponents componentsWithString:candidate];
+        if (!components.host.length || ![@[@"http", @"https"] containsObject:components.scheme.lowercaseString] || components.query.length || components.fragment.length || components.user.length || components.password.length || (components.path.length > 0 && ![components.path isEqualToString:@"/"]) || (components.port && (components.port.integerValue < 1 || components.port.integerValue > 65535))) {
+            return [self error:@"Enter a JIT server host or http(s) URL without a path."];
+        }
+    }
+    setPrefObject(@"general.jitstreamer_server", address);
+    return [self ok:address];
 }
 
 - (NSString *)setRuntimeSetting:(NSArray *)arguments {

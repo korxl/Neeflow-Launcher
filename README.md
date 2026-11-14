@@ -10,7 +10,7 @@ The launcher is based on AngelAuraMC Amethyst-Android at commit `166af615dbdca1a
 
 ## iOS IPA
 
-The [iOS workflow](.github/workflows/ios-ipa.yml) builds an unsigned sideload IPA when relevant source, interface or asset changes are pushed to `main`; it can also be started manually from GitHub Actions. It checks out the pinned Amethyst-iOS source, applies the Neeflow WebView, branding and optional legacy JitStreamer setting, then publishes the IPA as an artifact and prerelease asset. JIT availability depends on the iOS version and signing method. JitStreamer is deprecated; newer iOS versions use Amethyst's supported JIT flow. On iOS, install mod loaders through Amethyst's Profiles screen; game files stay in the app sandbox and individual files can be shared from Neeflow.
+The [iOS workflow](.github/workflows/ios-ipa.yml) builds an unsigned sideload IPA when relevant source, interface or asset changes are pushed to `main`; it can also be started manually from GitHub Actions. It checks out the pinned Amethyst-iOS source, opens directly to Neeflow's interface on iPhone, applies Neeflow branding and its app icon, and adds an optional legacy JitStreamer setting in Neeflow's settings. JIT availability depends on the iOS version and signing method. JitStreamer is deprecated; newer iOS versions use Amethyst's supported JIT flow. On iOS, install mod loaders through Amethyst's Profiles screen; game files stay in the app sandbox and individual files can be shared from Neeflow.
 
 ## Accounts and multiplayer
 
