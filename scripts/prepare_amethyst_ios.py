@@ -115,7 +115,7 @@ def main() -> None:
     patch_once(
         split_view,
         '        if(!getPrefBool(@"general.hidden_sidebar")) {',
-        '        if(realUIIdiom != UIUserInterfaceIdiomPhone && !getPrefBool(@"general.hidden_sidebar")) {',
+        '        if(UIDevice.currentDevice.userInterfaceIdiom != UIUserInterfaceIdiomPhone && !getPrefBool(@"general.hidden_sidebar")) {',
         "hide the Amethyst sidebar on iPhone",
     )
 
