@@ -783,6 +783,37 @@
       .settings-group-heading p { text-align:left; }
       .ingame-settings-panel { top:46px; right:5px; width:min(240px,calc(100% - 10px)); max-height:calc(100% - 51px); padding:10px; }
     }
+    body { -webkit-font-smoothing:antialiased; -webkit-tap-highlight-color:transparent; overscroll-behavior-y:none; }
+    .brand-mark { background:#11131b; }
+    .brand-mark::after { z-index:2; pointer-events:none; }
+    .brand-mark img { position:absolute; inset:0; z-index:1; width:100%; height:100%; object-fit:cover; }
+    .card { transition:border-color .22s ease,transform .22s cubic-bezier(.2,.7,.2,1),background .22s ease; }
+    .button,.nav-item,.icon-button { -webkit-tap-highlight-color:transparent; }
+    .button:active,.nav-item:active,.icon-button:active { transform:scale(.97); }
+    .mobile-nav { border-radius:23px; background:rgba(28,29,33,.82); -webkit-backdrop-filter:saturate(180%) blur(24px); }
+    .mobile-nav .nav-item.active { border-radius:15px; }
+    .file-browser-modal { display:flex; width:min(620px,100%); max-height:min(78vh,680px); flex-direction:column; overflow:hidden; padding:0; }
+    .file-browser-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; padding:20px 20px 14px; border-bottom:1px solid var(--line); }
+    .file-browser-head h2 { margin:0; font-size:17px; }
+    .file-browser-head p { margin:5px 0 0; color:var(--muted); font-size:10px; }
+    .file-browser-toolbar { display:flex; align-items:center; gap:10px; padding:11px 16px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.025); }
+    .file-browser-up { width:34px; height:34px; flex:0 0 34px; padding:0; }
+    .file-browser-path { min-width:0; overflow:hidden; color:var(--accent-2); font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+    .file-browser-list { min-height:130px; overflow:auto; padding:9px 12px 15px; overscroll-behavior:contain; }
+    .file-entry { display:flex; align-items:center; gap:11px; width:100%; min-height:49px; padding:8px 10px; border:0; border-bottom:1px solid var(--line); border-radius:11px; background:transparent; text-align:left; cursor:pointer; transition:background .16s ease,transform .16s ease; }
+    .file-entry:hover,.file-entry:focus-visible { background:var(--panel-hover); }
+    .file-entry:active { transform:scale(.99); }
+    .file-entry-icon { display:grid; width:31px; height:31px; flex:0 0 31px; place-items:center; border-radius:10px; background:rgba(var(--accent-rgb),.1); color:var(--accent); font-size:14px; }
+    .file-entry-copy { min-width:0; flex:1; }
+    .file-entry-name { overflow:hidden; font-size:11px; font-weight:650; text-overflow:ellipsis; white-space:nowrap; }
+    .file-entry-meta { margin-top:4px; color:var(--muted); font-size:9px; }
+    .file-browser-empty { padding:30px 12px; color:var(--muted); text-align:center; font-size:11px; line-height:1.6; }
+    @supports (padding: max(0px)) {
+      @media (max-width:760px) {
+        .app-shell { padding:env(safe-area-inset-top) max(15px,env(safe-area-inset-right)) calc(88px + env(safe-area-inset-bottom)) max(15px,env(safe-area-inset-left)); }
+        .mobile-nav { right:max(13px,env(safe-area-inset-right)); bottom:max(12px,calc(env(safe-area-inset-bottom) + 8px)); left:max(13px,env(safe-area-inset-left)); }
+      }
+    }
   </style>
 </head>
 <body data-theme="nebula">
@@ -790,7 +821,7 @@
   <div class="app-shell">
     <aside class="sidebar" aria-label="Основная навигация">
       <div class="brand">
-        <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.1 20.2 7.6v8.8L12 20.9l-8.2-4.5V7.6L12 3.1Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m3.9 7.8 8.1 4.5 8.1-4.5M12 12.4v8.1M8 5.3l8.1 4.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="brand-mark" aria-hidden="true"><img src="assets/neeflow-app-icon.png" alt=""></div>
         <div><div class="brand-name">NEEFLOW</div><div class="brand-caption">Java launcher</div></div>
       </div>
       <div class="nav-label">Рабочая область</div>
@@ -806,7 +837,7 @@
 
     <main class="main">
       <header class="topbar">
-        <div class="mobile-brand"><div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.1 20.2 7.6v8.8L12 20.9l-8.2-4.5V7.6L12 3.1Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="m3.9 7.8 8.1 4.5 8.1-4.5M12 12.4v8.1M8 5.3l8.1 4.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="brand-name">NEEFLOW</div><div class="brand-caption">Java launcher</div></div></div>
+        <div class="mobile-brand"><div class="brand-mark" aria-hidden="true"><img src="assets/neeflow-app-icon.png" alt=""></div><div><div class="brand-name">NEEFLOW</div><div class="brand-caption">Java launcher</div></div></div>
         <div class="breadcrumb">Neeflow <span aria-hidden="true">/</span> <b data-breadcrumb>Главная</b></div>
         <div class="top-actions"><div class="status-pill"><span class="status-dot"></span><span>Локальный режим</span><span class="status-extra">· без Microsoft</span></div><button class="icon-button" type="button" data-view-button="settings" aria-label="Открыть настройки" title="Настройки"><svg viewBox="0 0 24 24" fill="none"><path d="M12 15.1a3.1 3.1 0 1 0 0-6.2 3.1 3.1 0 0 0 0 6.2Z" stroke="currentColor" stroke-width="1.7"/><path d="m19.2 13.3 1.1.9-1.3 2.3-1.4-.5a7.9 7.9 0 0 1-1.5.9l-.3 1.5h-2.7l-.3-1.5a7.9 7.9 0 0 1-1.6-.9l-1.3.5-1.4-2.3 1.1-.9a7 7 0 0 1 0-1.8l-1.1-.9 1.4-2.3 1.3.5a7.9 7.9 0 0 1 1.6-.9l.3-1.5h2.7l.3 1.5a7.9 7.9 0 0 1 1.5.9l1.4-.5 1.3 2.3-1.1.9a7 7 0 0 1 0 1.8Z" transform="translate(-1.1 -1)" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></button></div>
       </header>
@@ -854,7 +885,7 @@
           <div class="section-toolbar version-browser-heading"><div><h2 class="card-title">Официальные версии Minecraft</h2><div class="card-label">Полный список релизов и снимков из манифеста Mojang</div></div><span class="pill-note" data-official-version-count>Подключение…</span></div>
           <div class="version-browser-filters">
             <label class="version-filter-search"><span class="field-label" for="official-version-search">ПОИСК ВЕРСИИ</span><input class="text-input" id="official-version-search" type="search" maxlength="50" placeholder="Например, 1.20.1 или 23w13a" data-official-version-search></label>
-            <label><span class="field-label" for="official-loader-filter">СБОРКА</span><select class="settings-select" id="official-loader-filter" data-official-loader><option value="vanilla">Vanilla</option><option value="fabric">Fabric</option><option value="forge">Forge</option><option value="optifine">OptiFine</option></select></label>
+            <label><span class="field-label" for="official-loader-filter">СБОРКА</span><select class="settings-select" id="official-loader-filter" data-official-loader><option value="vanilla">Vanilla</option><option value="fabric">Fabric</option><option value="quilt">Quilt</option><option value="forge">Forge</option><option value="neoforge">NeoForge</option><option value="optifine">OptiFine</option></select></label>
             <label><span class="field-label" for="official-type-filter">ТИП ВЕРСИИ</span><select class="settings-select" id="official-type-filter" data-official-type><option value="all">Все версии</option><option value="release">Релизы</option><option value="snapshot">Снимки / pre-release</option><option value="old_beta">Beta</option><option value="old_alpha">Alpha</option></select></label>
           </div>
           <div class="version-browser-status" data-official-version-status role="status" aria-live="polite">Открой раздел, чтобы загрузить актуальный список Mojang.</div>
@@ -976,14 +1007,14 @@
       </section>
 
       <section class="view hidden" data-section="files">
-        <div class="page-head"><div class="eyebrow"><span class="eyebrow-line"></span>Хранилище</div><h1 class="page-title">Файлы лаунчера</h1><p class="page-subtitle">Быстрые переходы к папкам игры, модам, ресурс-пакам и скриншотам.</p></div>
-        <div class="folder-note"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>Файлы можно выбрать через системное окно, но приложение пока не подключено напрямую к приватной папке Minecraft. Укажи нужную папку вручную; её содержимое не импортируется автоматически.</span></div>
+        <div class="page-head"><div class="eyebrow"><span class="eyebrow-line"></span>Хранилище</div><h1 class="page-title">Файлы лаунчера</h1><p class="page-subtitle">Просматривай настоящие папки игры, модов, ресурс-паков и скриншотов.</p></div>
+        <div class="folder-note"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>В Android-приложении это реальные файлы во внутренней папке .minecraft. Нажми папку, чтобы просмотреть содержимое; файлы откроются подходящим приложением. В веб-предпросмотре хранилище Android недоступно.</span></div>
         <input class="directory-input" type="file" webkitdirectory directory multiple data-directory-input aria-label="Выбрать папку">
         <div class="file-layout" style="margin-top:14px">
-          <article class="card folder-card"><div class="folder-top"><div class="folder-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M3.5 7.5a2 2 0 0 1 2-2h5l2 2h5.9a2 2 0 0 1 2 2v8.9a2.1 2.1 0 0 1-2.1 2.1H5.6a2.1 2.1 0 0 1-2.1-2.1V7.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3.8 10h16.4" stroke="currentColor" stroke-width="1.6"/></svg></div><div><div class="folder-name">Папка игры</div><div class="folder-subtitle">Профили, версии и настройки</div></div></div><div class="folder-path" data-folder-label="game">Neeflow/.minecraft/</div><button class="button button-quiet" type="button" data-folder-select="game">Выбрать папку игры</button></article>
-          <article class="card folder-card"><div class="folder-top"><div class="folder-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4z" stroke="currentColor" stroke-width="1.6"/><path d="M8 5v14M16 5v14M4 10h16M4 15h16" stroke="currentColor" stroke-width="1.2"/></svg></div><div><div class="folder-name">Моды</div><div class="folder-subtitle">Файлы модификаций .jar</div></div></div><div class="folder-path" data-folder-label="mods">.minecraft/mods/</div><button class="button button-quiet" type="button" data-folder-select="mods">Выбрать папку модов</button></article>
-          <article class="card folder-card"><div class="folder-top"><div class="folder-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4z" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="9" r="1.5" fill="currentColor"/><path d="m5 17 5-4 3 2 3-5 4 7" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div><div class="folder-name">Ресурс-паки</div><div class="folder-subtitle">Текстуры и оформление игры</div></div></div><div class="folder-path" data-folder-label="resourcepacks">.minecraft/resourcepacks/</div><button class="button button-quiet" type="button" data-folder-select="resourcepacks">Выбрать папку паков</button></article>
-          <article class="card folder-card"><div class="folder-top"><div class="folder-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="8.5" cy="10" r="1.5" stroke="currentColor" stroke-width="1.4"/><path d="m5 17 5-4 3 2 3-5 3 7" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></div><div><div class="folder-name">Скриншоты</div><div class="folder-subtitle">Снимки твоих игровых миров</div></div></div><div class="folder-path" data-folder-label="screenshots">.minecraft/screenshots/</div><button class="button button-quiet" type="button" data-folder-select="screenshots">Выбрать папку скриншотов</button></article>
+          <article class="card folder-card"><div class="folder-top"><div class="folder-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M3.5 7.5a2 2 0 0 1 2-2h5l2 2h5.9a2 2 0 0 1 2 2v8.9a2.1 2.1 0 0 1-2.1 2.1H5.6a2.1 2.1 0 0 1-2.1-2.1V7.5Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3.8 10h16.4" stroke="currentColor" stroke-width="1.6"/></svg></div><div><div class="folder-name">Папка игры</div><div class="folder-subtitle">Профили, версии и настройки</div></div></div><div class="folder-path" data-folder-label="game">Neeflow/.minecraft/</div><button class="button button-quiet" type="button" data-folder-select="game">Открыть папку игры</button></article>
+          <article class="card folder-card"><div class="folder-top"><div class="folder-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4z" stroke="currentColor" stroke-width="1.6"/><path d="M8 5v14M16 5v14M4 10h16M4 15h16" stroke="currentColor" stroke-width="1.2"/></svg></div><div><div class="folder-name">Моды</div><div class="folder-subtitle">Файлы модификаций .jar</div></div></div><div class="folder-path" data-folder-label="mods">.minecraft/mods/</div><button class="button button-quiet" type="button" data-folder-select="mods">Открыть папку модов</button></article>
+          <article class="card folder-card"><div class="folder-top"><div class="folder-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M4 5h16v14H4z" stroke="currentColor" stroke-width="1.6"/><circle cx="9" cy="9" r="1.5" fill="currentColor"/><path d="m5 17 5-4 3 2 3-5 4 7" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div><div class="folder-name">Ресурс-паки</div><div class="folder-subtitle">Текстуры и оформление игры</div></div></div><div class="folder-path" data-folder-label="resourcepacks">.minecraft/resourcepacks/</div><button class="button button-quiet" type="button" data-folder-select="resourcepacks">Открыть папку паков</button></article>
+          <article class="card folder-card"><div class="folder-top"><div class="folder-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="3.5" y="5" width="17" height="14" rx="2" stroke="currentColor" stroke-width="1.6"/><circle cx="8.5" cy="10" r="1.5" stroke="currentColor" stroke-width="1.4"/><path d="m5 17 5-4 3 2 3-5 3 7" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg></div><div><div class="folder-name">Скриншоты</div><div class="folder-subtitle">Снимки твоих игровых миров</div></div></div><div class="folder-path" data-folder-label="screenshots">.minecraft/screenshots/</div><button class="button button-quiet" type="button" data-folder-select="screenshots">Открыть папку скриншотов</button></article>
         </div>
       </section>
 
@@ -1018,6 +1049,13 @@
       <div class="modal-version-list" data-version-options></div>
       <div class="modal-empty" data-version-modal-empty><div class="empty-symbol"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M12 8v8m-4-4h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div><div><div class="modal-empty-title">Каталог пуст</div><div class="modal-empty-copy">Добавь свой профиль в разделе «Версии».</div></div></div>
       <div class="modal-footer"><button class="button button-quiet" type="button" data-view-button="versions">Управлять версиями</button><button class="button button-primary" type="button" data-close-modal>Готово</button></div>
+    </section>
+  </div>
+  <div class="modal-backdrop hidden" data-file-browser aria-hidden="true">
+    <section class="modal file-browser-modal" role="dialog" aria-modal="true" aria-labelledby="file-browser-title">
+      <div class="file-browser-head"><div><h2 id="file-browser-title">Файлы Minecraft</h2><p>Просмотр внутренней папки лаунчера</p></div><button class="icon-button" type="button" data-file-browser-close aria-label="Закрыть"><svg viewBox="0 0 24 24" fill="none"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button></div>
+      <div class="file-browser-toolbar"><button class="icon-button file-browser-up" type="button" data-file-browser-up aria-label="На уровень выше" title="На уровень выше">↑</button><div class="file-browser-path" data-file-browser-path>.minecraft/</div></div>
+      <div class="file-browser-list" data-file-browser-list></div>
     </section>
   </div>
   <div class="toast" role="status" aria-live="polite" data-toast><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M12 11v5m0-8h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span data-toast-text></span></div>
@@ -1501,7 +1539,9 @@
         if (loader === "vanilla") return true;
         if (!officialCatalog || !officialCatalog.loaders) return false;
         if (loader === "fabric") return Array.isArray(officialCatalog.loaders.fabric) && officialCatalog.loaders.fabric.includes(versionId);
+        if (loader === "quilt") return Array.isArray(officialCatalog.loaders.quilt) && officialCatalog.loaders.quilt.includes(versionId);
         if (loader === "forge") return Array.isArray(officialCatalog.loaders.forge) && officialCatalog.loaders.forge.some((entry) => entry && entry.gameVersion === versionId);
+        if (loader === "neoforge") return Array.isArray(officialCatalog.loaders.neoforge) && officialCatalog.loaders.neoforge.includes(versionId);
         if (loader === "optifine") return Array.isArray(officialCatalog.loaders.optifine) && officialCatalog.loaders.optifine.includes(versionId);
         return false;
       }
@@ -1509,6 +1549,12 @@
       function addOfficialVersion(version) {
         const gameVersion = version.id;
         const loader = officialLoaderFilter.value;
+        if (isNativeAndroid && loader !== "vanilla") {
+          const result = androidCall("installLoader", loader, gameVersion);
+          if (!result || result.error) { showToast(result && result.error ? result.error : "Не удалось открыть установщик загрузчика."); return; }
+          showToast(`Открылся установщик ${versionLoaderNames[loader] || loader}. Выбери Minecraft ${gameVersion} в списке версий.`);
+          return;
+        }
         const existing = versionProfiles.find((profile) => profile.gameVersion === gameVersion && profile.loader === loader);
         if (existing) {
           selectVersion(existing.id);
@@ -1578,7 +1624,7 @@
           const addButton = document.createElement("button");
           addButton.className = "button button-primary official-version-add";
           addButton.type = "button";
-          addButton.textContent = "Добавить";
+          addButton.textContent = isNativeAndroid && loader !== "vanilla" ? "Установить" : "Добавить";
           addButton.setAttribute("aria-label", `Добавить Minecraft ${version.id} ${versionLoaderNames[loader] || loader}`);
           addButton.addEventListener("click", () => addOfficialVersion(version));
           card.append(copy, addButton);
@@ -1982,6 +2028,13 @@
           document.querySelector("[data-version-code]").focus();
           return;
         }
+        if (isNativeAndroid && loader !== "vanilla") {
+          if (loader === "custom") { showToast("Пользовательские версии нельзя установить автоматически. Выбери один из встроенных загрузчиков."); return; }
+          const result = androidCall("installLoader", loader, gameVersion);
+          if (!result || result.error) { showToast(result && result.error ? result.error : "Не удалось открыть установщик загрузчика."); return; }
+          showToast(`Открылся установщик ${versionLoaderNames[loader] || loader}. Выбери Minecraft ${gameVersion} в списке версий.`);
+          return;
+        }
         const profile = { id: `version-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`, name, gameVersion, loader };
         if (!persistNativeProfile(profile)) return;
         versionProfiles = [profile, ...versionProfiles];
@@ -2009,13 +2062,9 @@
           renderUsername();
           const localNote = document.querySelector(".local-note span");
           if (localNote) localNote.textContent = "Локальный аккаунт хранится в Amethyst на устройстве и подходит для одиночной игры и серверов в offline-mode. Онлайн-режим требует Microsoft-аккаунт с Minecraft Java Edition.";
-          [officialLoaderFilter, document.querySelector("[data-version-loader]")].forEach((select) => {
-            Array.from(select.options).forEach((option) => { if (option.value !== "vanilla") option.disabled = true; });
-            select.value = "vanilla";
-          });
           document.querySelector(".hero-description").textContent = "Оригинальный интерфейс Neeflow подключён к Amethyst: скачивай официальные файлы Minecraft, запускай Java runtime и настраивай рендерер на устройстве.";
           document.querySelector(".version-note span").textContent = "Профили сохраняются в игровом лаунчере. Minecraft и библиотеки загружаются из официальных источников при первом запуске.";
-          document.querySelector(".version-browser-note").textContent = "Vanilla-профили сохраняются в Amethyst. Игровые файлы, библиотеки и Java runtime загружаются на устройство при запуске выбранной версии.";
+          document.querySelector(".version-browser-note").textContent = "Vanilla-профили хранятся в Amethyst. Для Fabric, Quilt, Forge, NeoForge и OptiFine открывается встроенный установщик; готовые версии доступны в каталоге лаунчера.";
           const profileHelper = document.querySelector(".version-create-card .helper");
           if (profileHelper) profileHelper.textContent = "Профиль Minecraft сохраняется в лаунчере. Игровые файлы будут загружены из официальных источников при первом запуске.";
           const controlsNote = document.querySelector(".orientation-note");
@@ -2035,6 +2084,23 @@
           showToast(`Не удалось прочитать профили лаунчера: ${nativeState.error}`);
         }
       }
+      function refreshNativeProfiles() {
+        if (!isNativeAndroid) return;
+        const state = androidCall("getLauncherState");
+        if (!state || state.error) { showToast(`Не удалось обновить профили: ${state && state.error ? state.error : "нет ответа"}`); return; }
+        if (state.username) username = state.username;
+        versionProfiles = Array.isArray(state.profiles) ? state.profiles.map((profile) => ({
+          id: String(profile.id), name: String(profile.name || profile.gameVersion),
+          gameVersion: String(profile.gameVersion), loader: String(profile.loader || "vanilla")
+        })) : [];
+        selectedVersionId = String(state.selectedProfileId || (versionProfiles[0] && versionProfiles[0].id) || "");
+        writeStorage("neeflow-username", username);
+        writeStorage("neeflow-version-profiles", JSON.stringify(versionProfiles));
+        writeStorage("neeflow-selected-version", selectedVersionId);
+        renderUsername();
+        renderVersionCatalog();
+      }
+      window.__neeflowRefreshNativeProfiles = refreshNativeProfiles;
       renderVersionCatalog();
       applySavedControlLayout();
       applyControlSettings();
@@ -2188,7 +2254,11 @@
       document.querySelectorAll("[data-open-version]").forEach((button) => button.addEventListener("click", openModal));
       document.querySelectorAll("[data-close-modal]").forEach((button) => button.addEventListener("click", closeModal));
       modal.addEventListener("click", (event) => { if (event.target === modal) closeModal(); });
-      document.addEventListener("keydown", (event) => { if (event.key === "Escape" && !modal.classList.contains("hidden")) closeModal(); });
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape") return;
+        if (!fileBrowser.classList.contains("hidden")) closeFileBrowser();
+        else if (!modal.classList.contains("hidden")) closeModal();
+      });
       document.querySelectorAll("[data-theme-option]").forEach((button) => button.addEventListener("click", () => setTheme(button.dataset.themeOption)));
       document.querySelectorAll("[data-pick]").forEach((button) => button.addEventListener("click", () => setTheme(button.dataset.pick)));
       document.querySelectorAll("[data-launch]").forEach((button) => button.addEventListener("click", launchMinecraft));
@@ -2251,13 +2321,65 @@
         if (event.key === "ArrowUp" || event.key === "ArrowDown") { pitch = Math.max(-28, Math.min(24, pitch + (event.key === "ArrowUp" ? -6 : 6))); applyRotation(); event.preventDefault(); }
       });
 
+      const fileBrowser = document.querySelector("[data-file-browser]");
+      const fileBrowserList = document.querySelector("[data-file-browser-list]");
+      const fileBrowserPath = document.querySelector("[data-file-browser-path]");
+      let currentGameFolder = "";
+      const gameFolderPaths = { game: "", mods: "mods", resourcepacks: "resourcepacks", screenshots: "screenshots" };
+      function closeFileBrowser() {
+        fileBrowser.classList.add("hidden");
+        fileBrowser.setAttribute("aria-hidden", "true");
+      }
+      function renderGameFolder(path) {
+        const result = androidCall("listGameFiles", path);
+        if (!result || result.error) { showToast(result && result.error ? result.error : "Не удалось открыть папку Minecraft."); return; }
+        currentGameFolder = String(result.path || "");
+        fileBrowserPath.textContent = `.minecraft/${currentGameFolder ? `${currentGameFolder}/` : ""}`;
+        fileBrowserList.replaceChildren();
+        const entries = Array.isArray(result.entries) ? result.entries : [];
+        if (!entries.length) {
+          const empty = document.createElement("div");
+          empty.className = "file-browser-empty";
+          empty.textContent = "В этой папке пока нет файлов.";
+          fileBrowserList.append(empty);
+        }
+        entries.forEach((entry) => {
+          if (!entry || typeof entry.name !== "string" || typeof entry.path !== "string") return;
+          const row = document.createElement("button");
+          row.type = "button";
+          row.className = "file-entry";
+          const icon = document.createElement("span");
+          icon.className = "file-entry-icon";
+          icon.textContent = entry.directory ? "▰" : "·";
+          const copy = document.createElement("span");
+          copy.className = "file-entry-copy";
+          const name = document.createElement("span");
+          name.className = "file-entry-name";
+          name.textContent = entry.name;
+          const meta = document.createElement("span");
+          meta.className = "file-entry-meta";
+          const bytes = Number(entry.size) || 0;
+          meta.textContent = entry.directory ? "Папка" : bytes < 1024 ? `${bytes} Б` : bytes < 1048576 ? `${(bytes / 1024).toFixed(1)} КБ` : `${(bytes / 1048576).toFixed(1)} МБ`;
+          copy.append(name, meta);
+          row.append(icon, copy);
+          row.addEventListener("click", () => {
+            if (entry.directory) { renderGameFolder(entry.path); return; }
+            const opened = androidCall("openGameFile", entry.path);
+            if (!opened || opened.error) showToast(opened && opened.error ? opened.error : "Не удалось открыть файл.");
+          });
+          fileBrowserList.append(row);
+        });
+        fileBrowser.classList.remove("hidden");
+        fileBrowser.setAttribute("aria-hidden", "false");
+      }
       document.querySelectorAll("[data-folder-select]").forEach((button) => button.addEventListener("click", async () => {
         const target = button.dataset.folderSelect;
+        if (isNativeAndroid) { renderGameFolder(gameFolderPaths[target] || ""); return; }
         if (typeof window.showDirectoryPicker === "function") {
           try {
             const handle = await window.showDirectoryPicker({ mode: "read" });
             updateFolderLabel(target, `${handle.name}/`);
-            showToast(`Выбрана папка ${handle.name}. Файлы не копируются в приложение автоматически.`);
+            showToast("Веб-предпросмотр не имеет доступа к приватному хранилищу Android.");
             return;
           } catch (error) {
             if (error && error.name === "AbortError") return;
@@ -2268,16 +2390,23 @@
           directoryInput.dataset.target = target;
           directoryInput.click();
         } else {
-          showToast("Папку целиком выбрать не удалось. Попробуй импортировать JSON-файлы отдельно.");
+          showToast("Просмотр папки доступен в Android-приложении.");
         }
       }));
+      document.querySelector("[data-file-browser-close]").addEventListener("click", closeFileBrowser);
+      document.querySelector("[data-file-browser-up]").addEventListener("click", () => {
+        if (!currentGameFolder) { closeFileBrowser(); return; }
+        const parent = currentGameFolder.split("/").slice(0, -1).join("/");
+        renderGameFolder(parent);
+      });
+      fileBrowser.addEventListener("click", (event) => { if (event.target === fileBrowser) closeFileBrowser(); });
       document.querySelector("[data-directory-input]").addEventListener("change", (event) => {
         const file = event.target.files && event.target.files[0];
         const target = event.target.dataset.target;
         if (file && target) {
           const folderName = file.webkitRelativePath ? file.webkitRelativePath.split("/")[0] : "Выбрана папка";
           updateFolderLabel(target, `${folderName}/`);
-          showToast("Папка выбрана. Приложение не открывает её содержимое автоматически.");
+          showToast("Выбранный каталог доступен только в этом браузере; папка Android не изменена.");
         }
         event.target.value = "";
       });

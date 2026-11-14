@@ -38,7 +38,7 @@ def main() -> None:
     neeflow_assets = app_root / "src/main/assets/neeflow"
     (neeflow_assets / "assets").mkdir(parents=True, exist_ok=True)
     shutil.copy2(repo_root / "index.html", neeflow_assets / "index.html")
-    for asset_name in ("alex.png", "steve.png"):
+    for asset_name in ("alex.png", "steve.png", "neeflow-app-icon.png"):
         shutil.copy2(repo_root / "assets" / asset_name, neeflow_assets / "assets" / asset_name)
 
     fragment_source = repo_root / "android/amethyst/src/main/java/net/kdt/pojavlaunch/fragments/NeeflowLauncherFragment.java"
@@ -99,6 +99,63 @@ def main() -> None:
     edit_file(local_login, [
         ('import static net.kdt.pojavlaunch.Tools.hasOnlineProfile;\n\n', ''),
         ('        // This is overkill but meh\n        if (!hasOnlineProfile()){\n            Tools.swapFragment(requireActivity(), MainMenuFragment.class, MainMenuFragment.TAG, null);\n        }\n', ''),
+    ])
+
+    profile_type = app_root / "src/main/java/net/kdt/pojavlaunch/fragments/ProfileTypeSelectFragment.java"
+    edit_file(profile_type, [
+        ('import static net.kdt.pojavlaunch.Tools.hasNoOnlineProfileDialog;\n', ''),
+        ('import static net.kdt.pojavlaunch.Tools.hasOnlineProfile;\n', ''),
+        ('''        if(!hasOnlineProfile()){
+            hasNoOnlineProfileDialog(requireActivity());
+        } else {
+            Tools.swapFragment(requireActivity(), fragmentClass, tag, null);
+        }''', '        Tools.swapFragment(requireActivity(), fragmentClass, tag, null);'),
+    ])
+
+    fabric_install = app_root / "src/main/java/net/kdt/pojavlaunch/fragments/FabriclikeInstallFragment.java"
+    edit_file(fabric_install, [
+        ('''    private void updateGameSpinner() {
+        if(mGameVersionArray == null) return;
+        mGameVersionSpinner.setAdapter(createAdapter(mGameVersionArray, mOnlyStableCheckbox.isChecked()));
+    }''', '''    private void updateGameSpinner() {
+        if(mGameVersionArray == null) return;
+        ArrayAdapter<FabricVersion> adapter = createAdapter(mGameVersionArray, mOnlyStableCheckbox.isChecked());
+        mGameVersionSpinner.setAdapter(adapter);
+        String requestedVersion = getArguments() == null ? null : getArguments().getString("neeflow_game_version");
+        if(requestedVersion != null) {
+            for(int i = 0; i < adapter.getCount(); i++) {
+                if(requestedVersion.equals(adapter.getItem(i).version)) {
+                    mGameVersionSpinner.setSelection(i);
+                    break;
+                }
+            }
+        }
+    }'''),
+    ])
+
+    mod_version_list = app_root / "src/main/java/net/kdt/pojavlaunch/fragments/ModVersionListFragment.java"
+    edit_file(mod_version_list, [
+        ('''                    mExpandableListView.setAdapter(createAdapter(versions, mInflater));''', '''                    ExpandableListAdapter adapter = createAdapter(versions, mInflater);
+                    mExpandableListView.setAdapter(adapter);
+                    String requestedVersion = getArguments() == null ? null : getArguments().getString("neeflow_game_version");
+                    if(requestedVersion != null) {
+                        for(int i = 0; i < adapter.getGroupCount(); i++) {
+                            if(requestedVersion.equals(String.valueOf(adapter.getGroup(i)))) {
+                                mExpandableListView.expandGroup(i);
+                                break;
+                            }
+                        }
+                    }'''),
+    ])
+
+    neoforge_adapter = app_root / "src/main/java/net/kdt/pojavlaunch/modloaders/NeoForgeVersionListAdapter.java"
+    edit_file(neoforge_adapter, [
+        ('''                if (Integer.parseInt(parts[1]) < 25) { // Actual logic for normal mcvers
+                    gameVersion = "1." + parts[0] + "." + parts[1];
+                } else gameVersion = parts[0] + "." + parts[1];''', '''                int minorVersion = Integer.parseInt(parts[1]);
+                if (minorVersion < 25) {
+                    gameVersion = minorVersion == 0 ? "1." + parts[0] : "1." + parts[0] + "." + parts[1];
+                } else gameVersion = parts[0] + "." + parts[1];'''),
     ])
 
     auth_layout = app_root / "src/main/res/layout/fragment_select_auth_method.xml"

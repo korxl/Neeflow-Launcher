@@ -44,7 +44,7 @@ async function cachedExternal(url, format = "json", ttl = 300000) {
   if (cached && cached.expiresAt > Date.now()) return cached.value;
 
   const upstream = await fetch(url, {
-    headers: { accept: format === "json" ? "application/json" : "text/html", "user-agent": userAgent },
+    headers: { accept: format === "json" ? "application/json" : "text/html, application/xml;q=0.9, text/xml;q=0.8, */*;q=0.7", "user-agent": userAgent },
     signal: AbortSignal.timeout(20000)
   });
   if (!upstream.ok) {
@@ -57,21 +57,34 @@ async function cachedExternal(url, format = "json", ttl = 300000) {
   return value;
 }
 
-function forgeSupportMap(promotions) {
-  const promos = promotions && promotions.promos && typeof promotions.promos === "object" ? promotions.promos : {};
-  const support = new Map();
-  Object.entries(promos).forEach(([key, forgeVersion]) => {
-    const match = key.match(/^(\d+\.\d+(?:\.\d+)?)-(latest|recommended)$/);
-    if (!match || typeof forgeVersion !== "string") return;
-    const current = support.get(match[1]) || {};
-    current[match[2]] = forgeVersion;
-    support.set(match[1], current);
-  });
-  return Array.from(support, ([gameVersion, builds]) => ({
-    gameVersion,
-    build: builds.recommended || builds.latest,
-    recommended: builds.recommended || ""
-  }));
+function forgeSupportMap(metadata) {
+  const xml = String(metadata || "");
+  const builds = new Map();
+  const pattern = /<version>(\d+\.\d+(?:\.\d+)?)-([^<]+)<\/version>/g;
+  let match;
+  while ((match = pattern.exec(xml)) !== null) builds.set(match[1], match[2]);
+  return Array.from(builds, ([gameVersion, build]) => ({ gameVersion, build, recommended: build }));
+}
+
+function quiltGameVersions(source) {
+  if (!Array.isArray(source)) return [];
+  return source.map((entry) => typeof entry === "string" ? entry : entry && entry.version)
+    .filter((version) => typeof version === "string" && /^\d+\.\d+(?:\.\d+)?$/.test(version));
+}
+
+function neoForgeGameVersions(metadata) {
+  const versions = new Set();
+  const pattern = /<version>([^<]+)<\/version>/g;
+  const xml = String(metadata || "");
+  let match;
+  while ((match = pattern.exec(xml)) !== null) {
+    const parts = match[1].split(".");
+    if (parts.length < 2 || !/^\d+$/.test(parts[0]) || !/^\d+$/.test(parts[1])) continue;
+    const major = Number(parts[0]);
+    const minor = Number(parts[1]);
+    versions.add(minor >= 25 ? `${major}.${minor}` : minor === 0 ? `1.${major}` : `1.${major}.${minor}`);
+  }
+  return Array.from(versions);
 }
 
 function optifineGameVersions(html) {
@@ -84,10 +97,12 @@ function optifineGameVersions(html) {
 
 async function handleMinecraftCatalog(response) {
   const manifestUrl = "https://piston-meta.mojang.com/mc/game/version_manifest_v2.json";
-  const [manifestResult, fabricResult, forgeResult, optifineResult] = await Promise.allSettled([
+  const [manifestResult, fabricResult, quiltResult, forgeResult, neoForgeResult, optifineResult] = await Promise.allSettled([
     cachedExternal(manifestUrl),
     cachedExternal("https://meta.fabricmc.net/v2/versions/game"),
-    cachedExternal("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json"),
+    cachedExternal("https://meta.quiltmc.org/v3/versions/game"),
+    cachedExternal("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml", "text"),
+    cachedExternal("https://maven.neoforged.net/releases/net/neoforged/neoforge/maven-metadata.xml", "text"),
     cachedExternal("https://optifine.net/downloads", "text", 900000)
   ]);
   if (manifestResult.status !== "fulfilled" || !manifestResult.value || !Array.isArray(manifestResult.value.versions)) {
@@ -98,15 +113,19 @@ async function handleMinecraftCatalog(response) {
   const fabricVersions = fabricResult.status === "fulfilled" && Array.isArray(fabricResult.value)
     ? fabricResult.value.filter((entry) => entry && typeof entry.version === "string").map((entry) => entry.version)
     : [];
+  const quiltVersions = quiltResult.status === "fulfilled" ? quiltGameVersions(quiltResult.value) : [];
   const forgeVersions = forgeResult.status === "fulfilled" ? forgeSupportMap(forgeResult.value) : [];
+  const neoForgeVersions = neoForgeResult.status === "fulfilled" ? neoForgeGameVersions(neoForgeResult.value) : [];
   const optifineVersions = optifineResult.status === "fulfilled" ? optifineGameVersions(optifineResult.value) : [];
   sendJson(response, 200, {
     latest: manifestResult.value.latest || {},
     versions: manifestResult.value.versions.filter((entry) => entry && typeof entry.id === "string").map((entry) => ({ id: entry.id, type: entry.type || "release", releaseTime: entry.releaseTime || "" })),
-    loaders: { fabric: fabricVersions, forge: forgeVersions, optifine: optifineVersions },
+    loaders: { fabric: fabricVersions, quilt: quiltVersions, forge: forgeVersions, neoforge: neoForgeVersions, optifine: optifineVersions },
     loaderSources: {
       fabric: fabricResult.status === "fulfilled" ? "ok" : "unavailable",
+      quilt: quiltResult.status === "fulfilled" ? "ok" : "unavailable",
       forge: forgeResult.status === "fulfilled" ? "ok" : "unavailable",
+      neoforge: neoForgeResult.status === "fulfilled" ? "ok" : "unavailable",
       optifine: optifineResult.status === "fulfilled" ? "ok" : "unavailable"
     }
   });

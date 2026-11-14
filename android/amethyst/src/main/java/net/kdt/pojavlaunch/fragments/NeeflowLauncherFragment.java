@@ -40,11 +40,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -54,6 +57,7 @@ public class NeeflowLauncherFragment extends Fragment {
     private WebView webView;
     private ValueCallback<Uri[]> fileChooserCallback;
     private ActivityResultLauncher<Intent> fileChooserLauncher;
+    private volatile boolean refreshLauncherAfterNativeFlow;
 
     public NeeflowLauncherFragment() {
         super();
@@ -89,7 +93,7 @@ public class NeeflowLauncherFragment extends Fragment {
     public View onCreateView(@NonNull android.view.LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         webView = new WebView(requireContext());
         webView.setBackgroundColor(Color.rgb(11, 12, 15));
-        webView.setInitialScale(90);
+        webView.setInitialScale(75);
         webView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
@@ -150,6 +154,14 @@ public class NeeflowLauncherFragment extends Fragment {
         return webView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (refreshLauncherAfterNativeFlow && webView != null) {
+            webView.evaluateJavascript("window.__neeflowRefreshNativeProfiles && window.__neeflowRefreshNativeProfiles()", null);
+        }
+    }
+
     private boolean isLauncherAsset(Uri uri) {
         return "https".equalsIgnoreCase(uri.getScheme())
                 && "appassets.androidplatform.net".equalsIgnoreCase(uri.getHost())
@@ -169,7 +181,7 @@ public class NeeflowLauncherFragment extends Fragment {
 
     public boolean handleBack() {
         if (webView == null) return false;
-        webView.evaluateJavascript("(function(){var modal=document.querySelector('[data-modal]');if(modal&&!modal.classList.contains('hidden')){document.querySelector('[data-close-modal]')&&document.querySelector('[data-close-modal]').click();return true}var panel=document.querySelector('[data-ingame-settings]');if(panel&&!panel.hidden){document.querySelector('[data-hud-settings-close]')&&document.querySelector('[data-hud-settings-close]').click();return true}return false})()", value -> {
+        webView.evaluateJavascript("(function(){var files=document.querySelector('[data-file-browser]');if(files&&!files.classList.contains('hidden')){document.querySelector('[data-file-browser-close]')&&document.querySelector('[data-file-browser-close]').click();return true}var modal=document.querySelector('[data-modal]');if(modal&&!modal.classList.contains('hidden')){document.querySelector('[data-close-modal]')&&document.querySelector('[data-close-modal]').click();return true}var panel=document.querySelector('[data-ingame-settings]');if(panel&&!panel.hidden){document.querySelector('[data-hud-settings-close]')&&document.querySelector('[data-hud-settings-close]').click();return true}return false})()", value -> {
             if (!"true".equals(value) && isAdded()) requireActivity().finish();
         });
         return true;
@@ -216,11 +228,7 @@ public class NeeflowLauncherFragment extends Fragment {
                 for (String id : LauncherProfiles.mainProfileJson.profiles.keySet()) {
                     MinecraftProfile profile = LauncherProfiles.mainProfileJson.profiles.get(id);
                     if (profile == null || profile.lastVersionId == null || "Unknown".equals(profile.lastVersionId)) continue;
-                    profiles.put(new JSONObject()
-                            .put("id", id)
-                            .put("name", profile.name == null || profile.name.isEmpty() ? profile.lastVersionId : profile.name)
-                            .put("gameVersion", profile.lastVersionId)
-                            .put("loader", "vanilla"));
+                    profiles.put(readProfileDetails(id, profile));
                 }
                 MinecraftAccount account = launcherActivity().getNeeflowSelectedAccount();
                 return new JSONObject()
@@ -305,7 +313,7 @@ public class NeeflowLauncherFragment extends Fragment {
 
         @JavascriptInterface
         public synchronized String saveProfile(String profileId, String name, String gameVersion, String loader) {
-            if (!"vanilla".equals(loader)) return error("В Android-интерфейсе пока доступны Vanilla-профили. Загрузчики модов можно установить через настройки Amethyst.").toString();
+            if (!"vanilla".equals(loader)) return error("Загрузчики устанавливаются через встроенный каталог версий Neeflow.").toString();
             if (gameVersion == null || !GAME_VERSION.matcher(gameVersion).matches()) return error("Некорректная версия Minecraft.").toString();
             if (name == null || name.trim().isEmpty() || name.trim().length() > 40) return error("Название профиля должно содержать от 1 до 40 символов.").toString();
             try {
@@ -385,6 +393,78 @@ public class NeeflowLauncherFragment extends Fragment {
         }
 
         @JavascriptInterface
+        public synchronized String installLoader(String loader, String gameVersion) {
+            if (loader == null || !GAME_VERSION.matcher(gameVersion == null ? "" : gameVersion).matches()) {
+                return error("Некорректный загрузчик или версия Minecraft.").toString();
+            }
+            Class<? extends Fragment> installer;
+            String tag;
+            switch (loader) {
+                case "fabric": installer = FabricInstallFragment.class; tag = FabricInstallFragment.TAG; break;
+                case "quilt": installer = QuiltInstallFragment.class; tag = QuiltInstallFragment.TAG; break;
+                case "forge": installer = ForgeInstallFragment.class; tag = ForgeInstallFragment.TAG; break;
+                case "neoforge": installer = NeoForgeInstallFragment.class; tag = NeoForgeInstallFragment.TAG; break;
+                case "optifine": installer = OptiFineInstallFragment.class; tag = OptiFineInstallFragment.TAG; break;
+                default: return error("Этот загрузчик нельзя установить из Neeflow.").toString();
+            }
+            LauncherActivity activity = launcherActivity();
+            Bundle arguments = new Bundle(1);
+            arguments.putString("neeflow_game_version", gameVersion);
+            refreshLauncherAfterNativeFlow = true;
+            activity.runOnUiThread(() -> Tools.swapFragment(activity, installer, tag, arguments));
+            return ok(loader).toString();
+        }
+
+        @JavascriptInterface
+        public synchronized String listGameFiles(String relativePath) {
+            try {
+                String path = normalizeGamePath(relativePath);
+                File directory = resolveGamePath(path);
+                if (!directory.exists() && isLauncherFolder(path)) directory.mkdirs();
+                if (!directory.isDirectory()) return error("Папка Minecraft не найдена.").toString();
+                File[] files = directory.listFiles();
+                if (files == null) files = new File[0];
+                Arrays.sort(files, (left, right) -> {
+                    if (left.isDirectory() != right.isDirectory()) return left.isDirectory() ? -1 : 1;
+                    return left.getName().compareToIgnoreCase(right.getName());
+                });
+                JSONArray entries = new JSONArray();
+                for (int i = 0; i < files.length && i < 500; i++) {
+                    File file = files[i];
+                    if (!isInsideGameRoot(file.getCanonicalFile())) continue;
+                    String childPath = path.isEmpty() ? file.getName() : path + "/" + file.getName();
+                    entries.put(new JSONObject()
+                            .put("name", file.getName())
+                            .put("path", childPath)
+                            .put("directory", file.isDirectory())
+                            .put("size", file.isFile() ? file.length() : 0));
+                }
+                return new JSONObject().put("path", path).put("entries", entries).toString();
+            } catch (Exception exception) {
+                return error(exception.getMessage() == null ? "Не удалось прочитать папку Minecraft." : exception.getMessage()).toString();
+            }
+        }
+
+        @JavascriptInterface
+        public String openGameFile(String relativePath) {
+            try {
+                File file = resolveGamePath(normalizeGamePath(relativePath));
+                if (!file.isFile() || !file.canRead()) return error("Файл Minecraft недоступен для чтения.").toString();
+                LauncherActivity activity = launcherActivity();
+                activity.runOnUiThread(() -> {
+                    try {
+                        Tools.openPath(activity, file, false);
+                    } catch (Exception exception) {
+                        Toast.makeText(activity, "Не удалось открыть этот файл.", Toast.LENGTH_LONG).show();
+                    }
+                });
+                return ok(relativePath).toString();
+            } catch (Exception exception) {
+                return error(exception.getMessage() == null ? "Не удалось открыть файл Minecraft." : exception.getMessage()).toString();
+            }
+        }
+
+        @JavascriptInterface
         public void openTouchControls() {
             LauncherActivity activity = launcherActivity();
             activity.runOnUiThread(() -> activity.startActivity(new Intent(activity, CustomControlsActivity.class)));
@@ -411,6 +491,113 @@ public class NeeflowLauncherFragment extends Fragment {
         }
     }
 
+    private JSONObject readProfileDetails(String id, MinecraftProfile profile) throws JSONException {
+        String versionId = profile.lastVersionId;
+        String loader = guessLoader(versionId, "");
+        String gameVersion = fallbackGameVersion(versionId, loader);
+        File metadataFile = null;
+        if (versionId != null && GAME_VERSION.matcher(versionId).matches()) {
+            metadataFile = new File(new File(Tools.DIR_HOME_VERSION, versionId), versionId + ".json");
+        }
+        if (metadataFile != null && metadataFile.isFile()) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(metadataFile), "UTF-8"))) {
+                StringBuilder contents = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) contents.append(line);
+                JSONObject metadata = new JSONObject(contents.toString());
+                String inheritedVersion = metadata.optString("inheritsFrom", "");
+                if (GAME_VERSION.matcher(inheritedVersion).matches()) gameVersion = inheritedVersion;
+                JSONArray libraries = metadata.optJSONArray("libraries");
+                StringBuilder libraryNames = new StringBuilder();
+                if (libraries != null) {
+                    for (int i = 0; i < libraries.length(); i++) {
+                        JSONObject library = libraries.optJSONObject(i);
+                        if (library != null) libraryNames.append(' ').append(library.optString("name", ""));
+                    }
+                }
+                loader = guessLoader(versionId, libraryNames.toString());
+            } catch (Exception ignored) { }
+        }
+        return new JSONObject()
+                .put("id", id)
+                .put("name", profile.name == null || profile.name.isEmpty() ? versionId : profile.name)
+                .put("gameVersion", gameVersion)
+                .put("loader", loader);
+    }
+
+    private static String guessLoader(String versionId, String libraries) {
+        String source = ((versionId == null ? "" : versionId) + " " + libraries).toLowerCase(Locale.ROOT);
+        if (source.contains("optifine")) return "optifine";
+        if (source.contains("neoforge")) return "neoforge";
+        if (source.contains("fabric-loader") || source.contains("net.fabricmc:fabric-loader")) return "fabric";
+        if (source.contains("quilt-loader") || source.contains("org.quiltmc:quilt-loader")) return "quilt";
+        if (source.contains("-forge-") || source.contains("net.minecraftforge:forge")) return "forge";
+        return "vanilla";
+    }
+
+    private static String fallbackGameVersion(String versionId, String loader) {
+        if (versionId == null) return "Unknown";
+        Matcher prefix = Pattern.compile("^(\\d+\\.\\d+(?:\\.\\d+)?)").matcher(versionId);
+        if (prefix.find()) return prefix.group(1);
+        if ("neoforge".equals(loader)) {
+            Matcher neoForge = Pattern.compile("^neoforge-(\\d+)\\.(\\d+)").matcher(versionId);
+            if (neoForge.find()) {
+                try {
+                    int major = Integer.parseInt(neoForge.group(1));
+                    int minor = Integer.parseInt(neoForge.group(2));
+                    if (minor >= 25) return major + "." + minor;
+                    return minor == 0 ? "1." + major : "1." + major + "." + minor;
+                } catch (NumberFormatException ignored) { }
+            }
+        }
+        Matcher versions = Pattern.compile("(\\d+\\.\\d+(?:\\.\\d+)?)").matcher(versionId);
+        String result = versionId;
+        while (versions.find()) result = versions.group(1);
+        return result;
+    }
+
+    private static String normalizeGamePath(String relativePath) throws IOException {
+        if (relativePath == null || relativePath.length() > 512) throw new IOException("Некорректный путь к папке Minecraft.");
+        String normalized = relativePath.replace('\\', '/');
+        if (normalized.startsWith("/")) throw new IOException("Путь должен находиться внутри папки Minecraft.");
+        if (!normalized.isEmpty()) {
+            for (String part : normalized.split("/", -1)) {
+                if (part.isEmpty() || ".".equals(part) || "..".equals(part)) throw new IOException("Некорректный путь к папке Minecraft.");
+            }
+        }
+        return normalized;
+    }
+
+    private static File resolveGamePath(String relativePath) throws IOException {
+        File root = new File(Tools.DIR_GAME_NEW).getCanonicalFile();
+        File target = relativePath.isEmpty() ? root : new File(root, relativePath).getCanonicalFile();
+        if (!isInsideGameRoot(target)) throw new IOException("Путь выходит за пределы папки Minecraft.");
+        return target;
+    }
+
+    private static boolean isInsideGameRoot(File file) throws IOException {
+        String root = new File(Tools.DIR_GAME_NEW).getCanonicalPath();
+        String path = file.getCanonicalPath();
+        return path.equals(root) || path.startsWith(root + File.separator);
+    }
+
+    private static boolean isLauncherFolder(String path) {
+        return path.isEmpty() || "mods".equals(path) || "resourcepacks".equals(path) || "screenshots".equals(path);
+    }
+
+    private static String neoForgeGameVersion(String loaderVersion) {
+        String[] parts = loaderVersion.split("\\.");
+        if (parts.length < 2 || !parts[0].matches("\\d+") || !parts[1].matches("\\d+")) return "";
+        try {
+            int major = Integer.parseInt(parts[0]);
+            int minor = Integer.parseInt(parts[1]);
+            if (minor >= 25) return major + "." + minor;
+            return minor == 0 ? "1." + major : "1." + major + "." + minor;
+        } catch (NumberFormatException ignored) {
+            return "";
+        }
+    }
+
     private JSONObject minecraftCatalog() throws IOException, JSONException {
         JSONObject manifest = fetchJson("https://piston-meta.mojang.com/mc/game/version_manifest_v2.json");
         JSONArray fabric = new JSONArray();
@@ -422,31 +609,37 @@ public class NeeflowLauncherFragment extends Fragment {
             }
         } catch (Exception ignored) { }
 
+        JSONArray quilt = new JSONArray();
+        try {
+            JSONArray source = fetchJsonArray("https://meta.quiltmc.org/v3/versions/game");
+            for (int i = 0; i < source.length(); i++) {
+                JSONObject item = source.optJSONObject(i);
+                String version = item == null ? source.optString(i) : item.optString("version");
+                if (version.matches("\\d+\\.\\d+(?:\\.\\d+)?") && !contains(quilt, version)) quilt.put(version);
+            }
+        } catch (Exception ignored) { }
+
         JSONArray forge = new JSONArray();
         try {
-            JSONObject source = fetchJson("https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json").optJSONObject("promos");
-            if (source != null) {
-                Iterator<String> keys = source.keys();
-                Pattern promoPattern = Pattern.compile("^(\\d+\\.\\d+(?:\\.\\d+)?)-(latest|recommended)$");
-                JSONObject builds = new JSONObject();
-                while (keys.hasNext()) {
-                    String key = keys.next();
-                    Matcher match = promoPattern.matcher(key);
-                    if (match.matches()) {
-                        JSONObject build = builds.optJSONObject(match.group(1));
-                        if (build == null) build = new JSONObject();
-                        build.put(match.group(2), source.optString(key));
-                        builds.put(match.group(1), build);
-                    }
-                }
-                Iterator<String> gameVersions = builds.keys();
-                while (gameVersions.hasNext()) {
-                    String gameVersion = gameVersions.next();
-                    JSONObject build = builds.getJSONObject(gameVersion);
-                    forge.put(new JSONObject().put("gameVersion", gameVersion)
-                            .put("build", build.optString("recommended", build.optString("latest")))
-                            .put("recommended", build.optString("recommended")));
-                }
+            String xml = fetchText("https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml");
+            Matcher matcher = Pattern.compile("<version>(\\d+\\.\\d+(?:\\.\\d+)?)-([^<]+)</version>").matcher(xml);
+            JSONObject builds = new JSONObject();
+            while (matcher.find()) builds.put(matcher.group(1), matcher.group(2));
+            Iterator<String> gameVersions = builds.keys();
+            while (gameVersions.hasNext()) {
+                String gameVersion = gameVersions.next();
+                String build = builds.optString(gameVersion);
+                forge.put(new JSONObject().put("gameVersion", gameVersion).put("build", build).put("recommended", build));
+            }
+        } catch (Exception ignored) { }
+
+        JSONArray neoforge = new JSONArray();
+        try {
+            String xml = fetchText("https://maven.neoforged.net/releases/net/neoforged/neoforge/maven-metadata.xml");
+            Matcher matcher = Pattern.compile("<version>([^<]+)</version>").matcher(xml);
+            while (matcher.find()) {
+                String gameVersion = neoForgeGameVersion(matcher.group(1));
+                if (!gameVersion.isEmpty() && !contains(neoforge, gameVersion)) neoforge.put(gameVersion);
             }
         } catch (Exception ignored) { }
 
@@ -471,9 +664,12 @@ public class NeeflowLauncherFragment extends Fragment {
         }
         return new JSONObject().put("latest", manifest.optJSONObject("latest") == null ? new JSONObject() : manifest.optJSONObject("latest"))
                 .put("versions", versions)
-                .put("loaders", new JSONObject().put("fabric", fabric).put("forge", forge).put("optifine", optifine))
+                .put("loaders", new JSONObject().put("fabric", fabric).put("quilt", quilt).put("forge", forge)
+                        .put("neoforge", neoforge).put("optifine", optifine))
                 .put("loaderSources", new JSONObject().put("fabric", fabric.length() > 0 ? "ok" : "unavailable")
+                        .put("quilt", quilt.length() > 0 ? "ok" : "unavailable")
                         .put("forge", forge.length() > 0 ? "ok" : "unavailable")
+                        .put("neoforge", neoforge.length() > 0 ? "ok" : "unavailable")
                         .put("optifine", optifine.length() > 0 ? "ok" : "unavailable"));
     }
 
