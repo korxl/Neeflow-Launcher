@@ -1,12 +1,16 @@
 # Neeflow Launcher
 
-Neeflow is an Android Minecraft Java launcher with the Neeflow interface and the Amethyst runtime, renderer, Java runtime and in-game touch-control system. Minecraft game files are fetched from official services when a version is installed; they are not bundled in this repository.
+Neeflow is a Minecraft Java launcher interface for Android and iOS, backed by the Amethyst runtime, renderer, Java runtimes and in-game touch controls. Minecraft game files are fetched from official services when a version is installed; they are not bundled in this repository.
 
 ## Android APK
 
 A push to `main` builds an installable debug APK with GitHub Actions. The workflow checks out Amethyst at the pinned source revision, initializes its submodules, downloads the OpenJDK 8 runtime, applies the Neeflow branding and local-account patch, copies the Neeflow web interface and its Android bridge into the launcher, then builds the APK. The APK is published as a workflow artifact and attached to a prerelease.
 
 The launcher is based on AngelAuraMC Amethyst-Android at commit `166af615dbdca1a507b8c2d379822cca02795132`. Neeflow's interface and Android integration are published in [`index.html`](index.html), [`android/amethyst/`](android/amethyst), and [`scripts/prepare_amethyst.py`](scripts/prepare_amethyst.py). The full Amethyst LGPLv3 license is included in [`third_party/AMETHYST-LGPL-3.0.txt`](third_party/AMETHYST-LGPL-3.0.txt) and bundled into the APK's About assets by the workflow. See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
+## iOS IPA
+
+The [iOS workflow](.github/workflows/ios-ipa.yml) builds an unsigned sideload IPA when relevant source, interface or asset changes are pushed to `main`; it can also be started manually from GitHub Actions. It checks out the pinned Amethyst-iOS source, applies the Neeflow WebView, branding and optional legacy JitStreamer setting, then publishes the IPA as an artifact and prerelease asset. JIT availability depends on the iOS version and signing method. JitStreamer is deprecated; newer iOS versions use Amethyst's supported JIT flow. On iOS, install mod loaders through Amethyst's Profiles screen; game files stay in the app sandbox and individual files can be shared from Neeflow.
 
 ## Accounts and multiplayer
 
@@ -18,7 +22,7 @@ Minecraft itself is not bundled. Create or select a Vanilla profile in Neeflow a
 
 The Android launcher opens Neeflow's own HTML/CSS/JavaScript interface rather than Amethyst's home screen. Its Android bridge reads and writes Amethyst version profiles, selects local accounts, starts the game, and proxies the Mojang version catalog and Modrinth searches. Vanilla profiles created in Neeflow are native Amethyst profiles. Neeflow's resolution scale, Java memory allocation, JVM arguments and VSync control write to Amethyst's real launcher preferences; other runtime and renderer options are available through Amethyst's native settings. The Neeflow HUD workspace is a visual layout preview; use its “real controls” action to edit Amethyst's actual in-game touch controls.
 
-The root `index.html` also remains runnable as a web preview. Outside the Android APK, game launching and runtime settings are clearly preview-only.
+The root `index.html` also remains runnable as a web preview. Outside the native Android APK and iOS IPA, game launching and runtime settings are clearly preview-only.
 
 ## Build source
 

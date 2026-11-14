@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#000000">
-  <meta name="description" content="Neeflow Launcher — концепт лаунчера Minecraft Java для Android.">
+  <meta name="description" content="Neeflow Launcher — лаунчер Minecraft Java для Android и iOS.">
   <title>Neeflow Launcher</title>
   <style>
     :root {
@@ -1167,7 +1167,7 @@
             </div>
             <div class="control-settings-block"><div class="control-block-heading"><span class="control-block-number">05</span><div><div class="control-block-title">Джойстик</div><div class="control-block-copy">Подстрой реакцию виртуального стика</div></div></div><div class="control-field"><label class="field-label" for="joystick-dead-zone">МЁРТВАЯ ЗОНА</label><div class="range-wrap"><input id="joystick-dead-zone" type="range" min="15" max="50" step="5" value="35" data-control-range="deadZone"><span class="range-value" data-control-value="deadZone">35%</span></div></div></div>
             <div class="control-settings-block"><div class="control-block-heading"><span class="control-block-number">06</span><div><div class="control-block-title">Камера</div><div class="control-block-copy">Чувствительность обзора в игровом HUD</div></div></div><div class="control-field"><label class="field-label" for="control-sensitivity">ЧУВСТВИТЕЛЬНОСТЬ</label><div class="range-wrap"><input id="control-sensitivity" type="range" min="20" max="200" step="10" value="100" data-control-sensitivity><span class="range-value" data-control-sensitivity-value>100%</span></div></div></div>
-            <div class="orientation-note">Профили управления и чувствительность сохраняются локально. Кнопки здесь редактируют макет HUD; для реальных нажатий и запуска игры понадобится нативный Android-клиент.</div>
+            <div class="orientation-note">Профили управления и чувствительность сохраняются локально. Кнопки здесь редактируют макет HUD; для реальных нажатий и запуска игры нужна нативная сборка лаунчера.</div>
           </article>
         </div>
       </section>
@@ -1195,7 +1195,7 @@
           </div></article>
           <article class="card setting-card"><h2>Сенсорное управление</h2><p>Настрой экранные кнопки, виртуальный джойстик, прозрачность и положение элементов.</p><button class="button button-quiet small-button" type="button" data-view-button="controls">Открыть редактор управления</button></article>
           <article class="card setting-card"><h2>Локальный профиль</h2><p>Укажи ник, который будет использоваться в игре. Microsoft-аккаунт не нужен.</p><label class="field-label" for="nickname">ИГРОВОЙ НИК</label><div class="input-row"><input class="text-input" id="nickname" name="nickname" type="text" maxlength="16" autocomplete="nickname" placeholder="Например, Neeflow" aria-describedby="nickname-help"><button class="button button-primary save-button" type="button" data-save-name>Сохранить</button></div><div class="helper" id="nickname-help">До 16 символов. Только латинские буквы, цифры и подчёркивание.</div><div class="local-note"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 6v5.5c0 5-3.4 8-8 9.5-4.6-1.5-8-4.5-8-9.5V6l8-3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="m8.5 12 2.3 2.3 4.8-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>В веб-версии ник хранится в браузере. Локальный профиль не авторизует на серверах, требующих аккаунт Microsoft.</span></div></article>
-          <article class="card setting-card"><h2>О Neeflow</h2><p>Android-оболочка Neeflow с каталогом версий, локальными настройками и предпросмотром HUD.</p><div class="empty-row"><div class="empty-symbol"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m4.2 7.7 7.8 4.4 7.8-4.4M12 12.1V21" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div><div class="empty-title">Предварительный макет</div><div class="empty-caption">Minecraft Java и Java runtime пока не входят в эту сборку.</div></div></div></article>
+          <article class="card setting-card"><h2>О Neeflow</h2><p>Интерфейс Neeflow с каталогом версий, локальными настройками и предпросмотром HUD.</p><div class="empty-row"><div class="empty-symbol"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3 20 7.5v9L12 21l-8-4.5v-9L12 3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m4.2 7.7 7.8 4.4 7.8-4.4M12 12.1V21" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div><div class="empty-title">Предварительный макет</div><div class="empty-caption">Minecraft Java и Java runtime пока не входят в эту сборку.</div></div></div></article>
 
           <article class="card setting-card"><h2>Java и JVM</h2><p>Аргументы запуска Minecraft Java и параметры установленного runtime.</p><div class="settings-field"><label class="field-label" for="java-version-select">ВЕРСИЯ JAVA · ДО 25</label><select class="settings-select" id="java-version-select" data-setting-select="javaVersion"><option value="auto">Автоматический выбор</option><option value="8">Java 8</option><option value="17">Java 17</option><option value="21">Java 21</option><option value="25">Java 25</option></select><div class="helper">Совместимость зависит от версии Minecraft и модов; Java здесь не скачивается.</div></div><div class="settings-field"><label class="field-label" for="jvm-args">АРГУМЕНТЫ JVM</label><textarea class="text-input jvm-args-input" id="jvm-args" rows="4" maxlength="2000" placeholder="Например: -XX:+UseG1GC -XX:MaxGCPauseMillis=100" data-jvm-args></textarea><div class="helper">Аргументы применяются при следующем запуске; не вставляй параметры из неизвестных источников.</div></div></article>
           <article class="card setting-card"><h2>Визуальный движок</h2><p>Выбери графический рендерер по образцу мобильных Java-лаунчеров.</p><div class="settings-field"><label class="field-label" for="renderer-select">РЕНДЕРЕР</label><select class="settings-select" id="renderer-select" data-setting-select="renderer"><option value="auto">Автоматически</option><option value="gl4es">Holy GL4ES</option><option value="ltw">LTW</option><option value="virgl">VirGL</option><option value="zink">Zink</option><option value="angle">ANGLE</option></select></div><div class="helper">Эта панель — параметры макета. Для реального выбора рендерера открой настройки игрового движка.</div></article>
@@ -1251,9 +1251,12 @@
           const value = window.NeeflowAndroid[method](...args);
           return typeof value === "string" ? JSON.parse(value) : value;
         } catch (error) {
-          return { error: error && error.message ? error.message : "Ошибка связи с Android-лаунчером." };
+          return { error: error && error.message ? error.message : "Ошибка связи с нативным лаунчером." };
         }
       }
+
+      const nativePlatform = isNativeAndroid ? androidCall("getPlatform") : null;
+      const isNativeIOS = Boolean(nativePlatform && nativePlatform.platform === "ios");
 
       function persistNativeProfile(profile) {
         if (!isNativeAndroid) return true;
@@ -1314,9 +1317,13 @@
         if (viewName === "modpacks" && !modrinthLoaded) searchModrinth();
         if (viewName === "versions") loadOfficialMinecraftCatalog();
         if (viewName === "files" && isNativeAndroid) {
-          const result = androidCall("openGameFolder", "");
-          if (!result || result.error) showToast(result && result.error ? result.error : "Не удалось открыть папку игры.");
-          else if (result.path) updateFolderLabel("game", `${result.path}/`);
+          if (isNativeIOS) {
+            renderGameFolder("");
+          } else {
+            const result = androidCall("openGameFolder", "");
+            if (!result || result.error) showToast(result && result.error ? result.error : "Не удалось открыть папку игры.");
+            else if (result.path) updateFolderLabel("game", `${result.path}/`);
+          }
         }
         window.scrollTo({ top: 0, behavior: "smooth" });
       }
@@ -2011,6 +2018,7 @@
         const gameVersion = version.id;
         const loader = officialLoaderFilter.value;
         if (isNativeAndroid && loader !== "vanilla") {
+          if (isNativeIOS) { showToast("На iOS установи загрузчик через экран профилей Amethyst."); return; }
           const result = androidCall("installLoader", loader, gameVersion);
           if (!result || result.error) { showToast(result && result.error ? result.error : "Не удалось открыть установщик загрузчика."); return; }
           showToast(`Открылся установщик ${versionLoaderNames[loader] || loader}. Выбери Minecraft ${gameVersion} в списке версий.`);
@@ -2085,7 +2093,7 @@
           const addButton = document.createElement("button");
           addButton.className = "button button-primary official-version-add";
           addButton.type = "button";
-          addButton.textContent = isNativeAndroid && loader !== "vanilla" ? "Установить" : "Добавить";
+          addButton.textContent = isNativeAndroid && !isNativeIOS && loader !== "vanilla" ? "Установить" : isNativeIOS && loader !== "vanilla" ? "Amethyst" : "Добавить";
           addButton.setAttribute("aria-label", `Добавить Minecraft ${version.id} ${versionLoaderNames[loader] || loader}`);
           addButton.addEventListener("click", () => addOfficialVersion(version));
           card.append(copy, addButton);
@@ -2457,6 +2465,7 @@
           return;
         }
         if (isNativeAndroid && loader !== "vanilla") {
+          if (isNativeIOS) { showToast("На iOS установи загрузчик через экран профилей Amethyst."); return; }
           if (loader === "custom") { showToast("Пользовательские версии нельзя установить автоматически. Выбери один из встроенных загрузчиков."); return; }
           const result = androidCall("installLoader", loader, gameVersion);
           if (!result || result.error) { showToast(result && result.error ? result.error : "Не удалось открыть установщик загрузчика."); return; }
@@ -2492,7 +2501,13 @@
           if (localNote) localNote.textContent = "Локальный аккаунт хранится в Amethyst на устройстве и подходит для одиночной игры и серверов в offline-mode. Онлайн-режим требует Microsoft-аккаунт с Minecraft Java Edition.";
           document.querySelector(".hero-description").textContent = "Оригинальный интерфейс Neeflow подключён к Amethyst: скачивай официальные файлы Minecraft, запускай Java runtime и настраивай рендерер на устройстве.";
           document.querySelector(".version-note span").textContent = "Профили сохраняются в игровом лаунчере. Minecraft и библиотеки загружаются из официальных источников при первом запуске.";
-          document.querySelector(".version-browser-note").textContent = "Vanilla-профили хранятся в Amethyst. Для Fabric, Quilt, Forge, NeoForge и OptiFine открывается встроенный установщик; готовые версии доступны в каталоге лаунчера.";
+          document.querySelector(".version-browser-note").textContent = isNativeIOS
+            ? "Vanilla-профили хранятся в Amethyst. Fabric, Quilt, Forge, NeoForge и OptiFine устанавливаются через экран профилей Amethyst."
+            : "Vanilla-профили хранятся в Amethyst. Для Fabric, Quilt, Forge, NeoForge и OptiFine открывается встроенный установщик; готовые версии доступны в каталоге лаунчера.";
+          const folderNote = document.querySelector(".folder-note span");
+          if (folderNote) folderNote.textContent = isNativeIOS
+            ? "Игровые файлы остаются в контейнере приложения iOS. Просматривай их в Neeflow; отдельные файлы можно экспортировать через меню «Поделиться»."
+            : "В Android-приложении кнопки открывают реальные папки .minecraft в системном приложении «Файлы». Если папки модов, ресурс-паков или скриншотов ещё нет, лаунчер создаст её.";
           const profileHelper = document.querySelector(".version-create-card .helper");
           if (profileHelper) profileHelper.textContent = "Профиль Minecraft сохраняется в лаунчере. Игровые файлы будут загружены из официальных источников при первом запуске.";
           const controlsNote = document.querySelector(".orientation-note");
@@ -2705,7 +2720,7 @@
         username = nextUsername;
         writeStorage("neeflow-username", username);
         renderUsername();
-        showToast(isNativeAndroid ? "Локальный аккаунт сохранён в Android-лаунчере." : "Ник сохранён в веб-прототипе.");
+        showToast(isNativeIOS ? "Локальный аккаунт сохранён в Amethyst на устройстве." : isNativeAndroid ? "Локальный аккаунт сохранён в Android-лаунчере." : "Ник сохранён в веб-прототипе.");
       });
       nameInput.addEventListener("keydown", (event) => { if (event.key === "Enter") document.querySelector("[data-save-name]").click(); });
 
@@ -2802,10 +2817,14 @@
       }
       document.querySelectorAll("[data-folder-select]").forEach((button) => button.addEventListener("click", async () => {
         const target = button.dataset.folderSelect;
-        if (isNativeAndroid) {
+        if (isNativeAndroid && !isNativeIOS) {
           const result = androidCall("openGameFolder", gameFolderPaths[target] || "");
           if (!result || result.error) { showToast(result && result.error ? result.error : "Не удалось открыть папку игры."); return; }
           if (result.path) updateFolderLabel(target, `${result.path}/`);
+          return;
+        }
+        if (isNativeIOS) {
+          showToast("Папки игры хранятся внутри приложения. Просматривать файлы можно в разделе «Файлы» Neeflow.");
           return;
         }
         if (typeof window.showDirectoryPicker === "function") {
@@ -2865,7 +2884,7 @@
           ramRange.max = String(maximum);
           ramRange.step = "8";
           ramRange.value = String(allocation);
-          ramHelp.textContent = `${deviceDescription}Для Java доступно до ${(maximum / 1024).toFixed(1).replace(".", ",")} ГБ; остальная память оставлена Android и приложениям.`;
+          ramHelp.textContent = `${deviceDescription}Для Java доступно до ${(maximum / 1024).toFixed(1).replace(".", ",")} ГБ; остальная память оставлена ${isNativeIOS ? "iOS" : "Android"} и приложениям.`;
         } else {
           ramRange.disabled = true;
           ramHelp.textContent = "Не удалось определить лимит памяти устройства. Перезапусти лаунчер и проверь настройки Amethyst.";
