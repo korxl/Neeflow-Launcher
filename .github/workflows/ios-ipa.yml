@@ -68,7 +68,7 @@ jobs:
           else
             gh release create "$tag" dist/NeeflowLauncher-iOS.ipa \
               --title "NeeflowLauncher iOS ${GITHUB_SHA::7}" \
-              --notes "Unofficial Neeflow iOS launcher IPA built on Amethyst. JIT and game-version compatibility depend on the device and iOS version. The legacy JitStreamer setting is deprecated; modern iOS versions use Amethyst's supported JIT providers." \
+              --notes "Unofficial Neeflow iOS launcher IPA built on Amethyst. JIT and game-version compatibility depend on the device, iOS version and signing method. Amethyst handles supported iOS JIT providers. Local accounts support single-player and offline-mode servers." \
               --prerelease \
               --target "$GITHUB_SHA"
           fi

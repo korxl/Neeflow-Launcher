@@ -1054,15 +1054,14 @@
             <div class="profile-bottom"><div><div class="mini-stat-label">Профилей версий</div><div class="mini-stat-value"><span data-version-count>0</span> <span style="color:var(--muted);font-size:11px;font-weight:550">сохранено</span></div></div><button class="edit-link" type="button" data-view-button="settings">Изменить ник<svg viewBox="0 0 24 24" fill="none"><path d="m9 18 6-6-6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
           </article>
         </div>
-        <article class="card jit-server-card" data-jit-server-card>
+        <article class="card jit-server-card" data-jit-card>
           <div class="jit-server-copy">
-            <div class="card-heading"><div><h2 class="card-title">JIT-сервер</h2><div class="card-label">JitStreamer (legacy) · проверка доступности</div></div></div>
-            <p class="jit-server-description" data-jit-server-description>Открой Neeflow на iPhone, чтобы проверить сервер в приложении.</p>
+            <div class="card-heading"><div><h2 class="card-title">JIT для iOS</h2><div class="card-label">Встроенное управление Amethyst</div></div></div>
+            <p class="jit-server-description" data-jit-description>При запуске Minecraft Amethyst запросит JIT у поддерживаемого провайдера iOS.</p>
           </div>
           <div class="jit-server-actions">
-            <span class="jit-server-status" data-state="checking" data-jit-server-status role="status" aria-live="polite"><span class="jit-server-dot" aria-hidden="true"></span><span data-jit-server-label>Проверяем…</span></span>
+            <span class="jit-server-status" data-state="checking" data-jit-status role="status" aria-live="polite"><span class="jit-server-dot" aria-hidden="true"></span><span data-jit-label>Проверяем…</span></span>
             <button class="button button-quiet small-button" type="button" data-jit-refresh>Проверить</button>
-            <button class="button button-quiet small-button" type="button" data-jit-settings>Настроить</button>
           </div>
         </article>
 
@@ -1221,7 +1220,7 @@
 
           <article class="card setting-card"><h2>Java и JVM</h2><p>Аргументы запуска Minecraft Java и параметры установленного runtime.</p><div class="settings-field"><label class="field-label" for="java-version-select">ВЕРСИЯ JAVA · ДО 25</label><select class="settings-select" id="java-version-select" data-setting-select="javaVersion"><option value="auto">Автоматический выбор</option><option value="8">Java 8</option><option value="17">Java 17</option><option value="21">Java 21</option><option value="25">Java 25</option></select><div class="helper">Совместимость зависит от версии Minecraft и модов; Java здесь не скачивается.</div></div><div class="settings-field"><label class="field-label" for="jvm-args">АРГУМЕНТЫ JVM</label><textarea class="text-input jvm-args-input" id="jvm-args" rows="4" maxlength="2000" placeholder="Например: -XX:+UseG1GC -XX:MaxGCPauseMillis=100" data-jvm-args></textarea><div class="helper">Аргументы применяются при следующем запуске; не вставляй параметры из неизвестных источников.</div></div></article>
           <article class="card setting-card"><h2>Визуальный движок</h2><p>Выбери графический рендерер по образцу мобильных Java-лаунчеров.</p><div class="settings-field"><label class="field-label" for="renderer-select">РЕНДЕРЕР</label><select class="settings-select" id="renderer-select" data-setting-select="renderer"><option value="auto">Автоматически</option><option value="gl4es">Holy GL4ES</option><option value="ltw">LTW</option><option value="virgl">VirGL</option><option value="zink">Zink</option><option value="angle">ANGLE</option></select></div><div class="helper">Эта панель — параметры макета. Для реального выбора рендерера открой настройки игрового движка.</div></article>
-          <article class="card setting-card"><h2>JIT-сервер</h2><p>Необязательный адрес legacy JitStreamer. На новых версиях iOS JIT управляется совместимым системным провайдером.</p><label class="field-label" for="jit-server-address">АДРЕС СЕРВЕРА</label><div class="input-row"><input class="text-input" id="jit-server-address" type="url" maxlength="255" placeholder="192.168.1.20:8080" autocomplete="url"><button class="button button-primary save-button" type="button" data-save-jit-server>Сохранить</button></div><div class="helper">Оставь поле пустым, чтобы отключить JitStreamer. Для подключения JitStreamer перезапусти Neeflow. Проверка адреса не подтверждает, что JIT подключён к игре.</div></article><article class="card setting-card" data-native-settings-card><h2>Настройки игрового движка</h2><p>Открой встроенные настройки Amethyst: Java, память, рендерер, разрешение и сенсорное управление.</p><button class="button button-primary small-button" type="button" data-native-settings>Настройки рантайма</button></article>
+          <article class="card setting-card" data-native-settings-card><h2>Настройки игрового движка</h2><p>Открой встроенные настройки Amethyst: Java, память, рендерер, разрешение и сенсорное управление.</p><button class="button button-primary small-button" type="button" data-native-settings>Настройки рантайма</button></article>
           <article class="card setting-card"><h2>Графика и обзор</h2><p>Масштаб влияет на разрешение игрового окна Amethyst.</p><div class="settings-field"><label class="field-label" for="resolution-select">МАСШТАБ РЕНДЕРА · AMETHYST</label><div class="range-wrap runtime-setting-control"><input id="resolution-select" type="range" min="25" max="100" step="5" value="100" data-runtime-setting="resolutionRatio"><span class="range-value" data-runtime-setting-value>100%</span></div><div class="helper">Масштабирует разрешение игрового окна; 100% использует полный размер экрана, меньшие значения могут повысить производительность.</div></div><div class="settings-field"><label class="field-label" for="render-distance">ДАЛЬНОСТЬ ПРОРИСОВКИ</label><select class="settings-select" id="render-distance" data-setting-select="renderDistance"><option value="4">4 чанка · экономно</option><option value="6">6 чанков</option><option value="8">8 чанков</option><option value="12">12 чанков</option><option value="16">16 чанков</option><option value="24">24 чанка</option><option value="32">32 чанка</option></select></div><div class="settings-field"><label class="field-label" for="fps-limit">ЛИМИТ FPS</label><select class="settings-select" id="fps-limit" data-setting-select="fpsLimit"><option value="30">30 FPS</option><option value="60">60 FPS</option><option value="90">90 FPS</option><option value="120">120 FPS</option><option value="unlimited">Без ограничения</option></select></div><div class="toggle-row"><div><div class="toggle-title">Инвертировать вертикальный обзор</div><div class="toggle-subtitle">Поменять направление движения камеры</div></div><label class="switch"><input type="checkbox" data-setting="invert-look-y" aria-label="Инвертировать вертикальный обзор"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Вертикальная синхронизация</div><div class="toggle-subtitle">Ограничить разрывы изображения</div></div><label class="switch"><input type="checkbox" data-setting="vsync" checked aria-label="Вертикальная синхронизация"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Плавное освещение</div><div class="toggle-subtitle">Более мягкое освещение мира</div></div><label class="switch"><input type="checkbox" data-setting="smooth-lighting" checked aria-label="Плавное освещение"><span class="switch-track"></span></label></div></article>
           <article class="card setting-card wide-card"><h2>Производительность и интерфейс</h2><p>Настрой память Java и внешний вид интерфейса Neeflow.</p><div class="settings-field"><label class="field-label" for="ram-range">ПАМЯТЬ JAVA · AMETHYST</label><div class="range-wrap runtime-setting-control"><input id="ram-range" type="range" min="256" max="2048" step="8" value="1024" data-ram-range data-runtime-setting="allocation"><span class="range-value" data-ram-value data-runtime-setting-value>1,0 ГБ</span></div><div class="helper" data-ram-help>Объём памяти, выделяемый среде Java.</div></div><div class="toggle-list" style="margin-top:10px"><div class="toggle-row"><div><div class="toggle-title">Показывать FPS</div><div class="toggle-subtitle">Счётчик появится в игровом HUD после подключения игры</div></div><label class="switch"><input type="checkbox" data-setting="show-fps" checked aria-label="Показывать FPS"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Плавные анимации</div><div class="toggle-subtitle">Отключи, если хочешь более спокойный интерфейс</div></div><label class="switch"><input type="checkbox" data-setting="animations" checked aria-label="Плавные анимации"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Показывать уведомления</div><div class="toggle-subtitle">Подсказки о загрузках и готовности версии</div></div><label class="switch"><input type="checkbox" data-setting="notifications" checked aria-label="Показывать уведомления"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Запрашивать landscape при старте</div><div class="toggle-subtitle">Ориентацию можно закрепить только если это разрешает браузер</div></div><label class="switch"><input type="checkbox" data-setting="auto-landscape" checked aria-label="Запрашивать альбомную ориентацию"><span class="switch-track"></span></label></div><div class="toggle-row"><div><div class="toggle-title">Полный экран при запуске</div><div class="toggle-subtitle">Включается после нажатия кнопки; поддержка зависит от браузера</div></div><label class="switch"><input type="checkbox" data-setting="fullscreen-startup" checked aria-label="Полный экран при запуске"><span class="switch-track"></span></label></div></div></article>
         </div>
@@ -1279,21 +1278,11 @@
 
       const nativePlatform = isNativeAndroid ? androidCall("getPlatform") : null;
       const isNativeIOS = Boolean(nativePlatform && nativePlatform.platform === "ios");
-      const jitServerStatus = document.querySelector("[data-jit-server-status]");
-      const jitServerLabel = document.querySelector("[data-jit-server-label]");
-      const jitServerDescription = document.querySelector("[data-jit-server-description]");
+      const jitServerStatus = document.querySelector("[data-jit-status]");
+      const jitServerLabel = document.querySelector("[data-jit-label]");
+      const jitServerDescription = document.querySelector("[data-jit-description]");
       const jitRefreshButton = document.querySelector("[data-jit-refresh]");
-      const jitAddressInput = document.querySelector("#jit-server-address");
-      const nativeSettingsCard = document.querySelector("[data-native-settings-card]");
       let jitStatusRequest = 0;
-
-      if (isNativeIOS && nativeSettingsCard) nativeSettingsCard.hidden = true;
-      if (isNativeIOS) {
-        const savedJitAddress = androidCall("getJitServerAddress");
-        if (savedJitAddress && !savedJitAddress.error) jitAddressInput.value = savedJitAddress.address || "";
-      } else {
-        jitAddressInput.value = readStorage("neeflow-jit-server-address", "");
-      }
 
       function setJitServerStatus(state, label, description) {
         jitServerStatus.dataset.state = state;
@@ -1304,54 +1293,29 @@
       async function refreshJitServerStatus() {
         const requestId = ++jitStatusRequest;
         if (!isNativeIOS) {
-          setJitServerStatus("preview", isNativeAndroid ? "Только iOS" : "Только в приложении", isNativeAndroid ? "Проверка JitStreamer доступна только в iOS-версии Neeflow." : "Веб-превью не видит настройки и сеть iPhone; адрес можно сохранить здесь только для макета.");
+          setJitServerStatus("preview", isNativeAndroid ? "Только iOS" : "В приложении", isNativeAndroid ? "JIT на iOS проверяется встроенным механизмом Amethyst." : "Веб-просмотр не может определить состояние JIT на устройстве.");
           return;
         }
-        setJitServerStatus("checking", "Проверяем…", "Проверяем ответ JitStreamer. Это не подтверждает, что JIT уже подключён к игре.");
+        setJitServerStatus("checking", "Проверяем…", "Читаем состояние JIT через системную логику Amethyst.");
         jitRefreshButton.disabled = true;
         try {
-          const response = await fetch("/api/jit/status", { headers: { accept: "application/json" } });
-          const status = await readJsonResponse(response);
-          if (!response.ok || status.error) throw new Error(status.message || status.error || `HTTP ${response.status}`);
-          if (!status.configured) {
-            setJitServerStatus("disabled", "Выключен", "Адрес JitStreamer не задан. Другие JIT-провайдеры iOS здесь не отображаются.");
-          } else if (status.reachable) {
-            const version = status.version ? ` Версия сервера: ${status.version}.` : "";
-            setJitServerStatus("online", "Доступен", `JitStreamer отвечает на /version.${version} Это не подтверждает подключение JIT к игре.`);
+          const status = androidCall("getJitStatus");
+          if (!status || status.error) throw new Error(status && status.error ? status.error : "Нет ответа от Amethyst.");
+          if (requestId !== jitStatusRequest) return;
+          if (status.enabled) {
+            setJitServerStatus("online", "Включён", "JIT активен. Amethyst использует его для запуска игрового Java runtime.");
           } else {
-            setJitServerStatus("offline", "Не отвечает", `${status.message || "JitStreamer не ответил на /version."} Проверь адрес и сеть.`);
+            setJitServerStatus("offline", "Ожидает запуска", "При запуске игры Amethyst запросит JIT у поддерживаемого провайдера iOS.");
           }
         } catch (error) {
-          if (requestId === jitStatusRequest) setJitServerStatus("offline", "Статус недоступен", error.message || "Не удалось проверить JIT-сервер.");
+          if (requestId === jitStatusRequest) setJitServerStatus("offline", "Статус недоступен", error.message || "Не удалось прочитать состояние JIT.");
         } finally {
           if (requestId === jitStatusRequest) jitRefreshButton.disabled = false;
         }
       }
 
-      window.__neeflowRefreshJitServerStatus = refreshJitServerStatus;
+      window.__neeflowRefreshJitStatus = refreshJitServerStatus;
       jitRefreshButton.addEventListener("click", refreshJitServerStatus);
-      document.querySelector("[data-jit-settings]").addEventListener("click", () => {
-        setView("settings");
-        window.setTimeout(() => jitAddressInput.focus(), 100);
-      });
-      document.querySelector("[data-save-jit-server]").addEventListener("click", () => {
-        const address = jitAddressInput.value.trim();
-        if (address.length > 255) {
-          showToast("Адрес JIT-сервера слишком длинный.");
-          return;
-        }
-        if (isNativeIOS) {
-          const result = androidCall("setJitServerAddress", address);
-          if (!result || result.error) {
-            showToast(result && result.error ? result.error : "Не удалось сохранить адрес JIT-сервера.");
-            return;
-          }
-        } else {
-          writeStorage("neeflow-jit-server-address", address);
-        }
-        showToast(isNativeIOS ? "Адрес JIT-сервера сохранён." : "Адрес сохранён только в этом предпросмотре.");
-        refreshJitServerStatus();
-      });
       refreshJitServerStatus();
 
       function persistNativeProfile(profile) {

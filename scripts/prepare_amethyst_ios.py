@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Apply Neeflow's iOS interface, branding, and legacy JitStreamer setting."""
+"""Apply Neeflow's iOS interface and branding while retaining Amethyst runtime behavior."""
 
 from pathlib import Path
 import re
@@ -47,9 +47,8 @@ def main() -> None:
     required_files = (
         natives / "CMakeLists.txt",
         natives / "LauncherMenuViewController.m",
-        natives / "LauncherMenuViewController.h",
         natives / "LauncherSplitViewController.m",
-        natives / "PLPreferences.m",
+        natives / "MinecraftResourceDownloadTask.m",
         natives / "Info.plist",
         natives / "Assets.xcassets/AppIcon-Light.appiconset/Contents.json",
         natives / "Assets.xcassets/AppIcon-Dark.appiconset/Contents.json",
@@ -119,14 +118,6 @@ def main() -> None:
         "hide the Amethyst sidebar on iPhone",
     )
 
-    menu_header = natives / "LauncherMenuViewController.h"
-    patch_once(
-        menu_header,
-        "- (void)updateAccountInfo;\n",
-        "- (void)updateAccountInfo;\n- (void)enableJITWithJitStreamer:(NSString *)address;\n",
-        "JitStreamer method declaration",
-    )
-
     menu = natives / "LauncherMenuViewController.m"
     patch_once(
         menu,
@@ -140,69 +131,13 @@ def main() -> None:
         "        [LauncherMenuCustomItem vcClass:LauncherNewsViewController.class],\n        [LauncherMenuCustomItem vcClass:NeeflowLauncherViewController.class],\n        [LauncherMenuCustomItem vcClass:LauncherProfilesViewController.class],",
         "Neeflow menu item",
     )
-    patch_once(
-        menu,
-        "        } else if (@available(iOS 17.0, *)) {\n            // enabling JIT for 17.0+ is done when we actually launch the game\n        } else {\n            [self enableJITWithAltKit];\n        }",
-        "        } else if (@available(iOS 17.0, *)) {\n            // Current iOS releases use Amethyst's supported JIT provider.\n        } else {\n            NSString *jitStreamer = getPrefObject(@\"general.jitstreamer_server\");\n            if (![jitStreamer isKindOfClass:NSString.class]) jitStreamer = @\"\";\n            jitStreamer = [jitStreamer stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];\n            if (jitStreamer.length > 0) [self enableJITWithJitStreamer:jitStreamer];\n            else [self enableJITWithAltKit];\n        }",
-        "iOS JIT provider selection",
-    )
-    menu_text = menu.read_text(encoding="utf-8")
-    if "- (void)enableJITWithJitStreamer:" not in menu_text:
-        end = menu_text.rfind("\n@end")
-        if end < 0:
-            raise RuntimeError(f"Could not find implementation end in {menu}")
-        jit_method = r'''
-- (void)enableJITWithJitStreamer:(NSString *)configuredAddress {
-    NSString *address = [configuredAddress stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
-    if (![address containsString:@"://"]) address = [@"http://" stringByAppendingString:address];
-    NSURLComponents *components = [NSURLComponents componentsWithString:address];
-    if (!components.host.length || ![@[@"http", @"https"] containsObject:components.scheme.lowercaseString] || components.query.length || components.fragment.length || (components.path.length > 0 && ![components.path isEqualToString:@"/"])) {
-        [self displayProgress:localize(@"login.jit.fail", nil)];
-        [self displayProgress:nil];
-        showDialog(localize(@"login.jit.fail.title", nil), @"Enter a JitStreamer host name or URL without a path.");
-        return;
-    }
-
-    NSString *baseURL = [components.URL.absoluteString stringByTrimmingCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]];
-    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-    manager.requestSerializer.timeoutInterval = 10;
-    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
-    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"text/plain", @"application/json", nil];
-    [self displayProgress:localize(@"login.jit.checking", nil)];
-    [manager GET:[baseURL stringByAppendingString:@"/version"] parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask *task, NSData *response) {
-        NSString *version = [[NSString alloc] initWithData:response encoding:NSUTF8StringEncoding];
-        NSLog(@"[JitStreamer] Connected to %@ (version %@)", baseURL, version);
-        manager.requestSerializer.timeoutInterval = 10;
-        manager.responseSerializer = [AFJSONResponseSerializer serializer];
-        manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/plain", nil];
-        [manager POST:[NSString stringWithFormat:@"%@/attach/%d/", baseURL, getpid()] parameters:nil headers:nil progress:nil success:^(NSURLSessionDataTask *task, id responseObject) {
-            NSDictionary *response = [responseObject isKindOfClass:NSDictionary.class] ? responseObject : nil;
-            if ([response[@"success"] boolValue]) {
-                [self displayProgress:localize(@"login.jit.enabled", nil)];
-                [self displayProgress:nil];
-            } else {
-                NSLog(@"[JitStreamer] JIT attach failed: %@", response[@"message"]);
-                [self enableJITWithAltKit];
-            }
-        } failure:^(NSURLSessionDataTask *task, NSError *error) {
-            NSLog(@"[JitStreamer] Attach failed: %@", error.localizedDescription);
-            [self enableJITWithAltKit];
-        }];
-    } failure:^(NSURLSessionDataTask *task, NSError *error) {
-        NSLog(@"[JitStreamer] Server unavailable: %@", error.localizedDescription);
-        [self enableJITWithAltKit];
-    }];
-}
-'''
-        menu.write_text(menu_text[:end] + jit_method + menu_text[end:], encoding="utf-8")
 
     patch_once(
-        natives / "PLPreferences.m",
-        '            @"hidden_sidebar": @(realUIIdiom == UIUserInterfaceIdiomPhone),\n            @"appicon": @"AppIcon-Light"',
-        '            @"hidden_sidebar": @(realUIIdiom == UIUserInterfaceIdiomPhone),\n            @"jitstreamer_server": @"",\n            @"appicon": @"AppIcon-Light"',
-        "legacy JitStreamer preference default",
+        natives / "MinecraftResourceDownloadTask.m",
+        '- (BOOL)checkAccessWithDialog:(BOOL)show {\n    // for now\n    BOOL accessible = [BaseAuthenticator.current.authData[@"username"] hasPrefix:@"Demo."] || BaseAuthenticator.current.authData[@"xboxGamertag"] != nil;',
+        '- (BOOL)checkAccessWithDialog:(BOOL)show {\n    // for now\n    BOOL isLocalAccount = [BaseAuthenticator.current isKindOfClass:LocalAuthenticator.class];\n    BOOL accessible = isLocalAccount || [BaseAuthenticator.current.authData[@"username"] hasPrefix:@"Demo."] || BaseAuthenticator.current.authData[@"xboxGamertag"] != nil;',
+        "allow local accounts to download official Minecraft files",
     )
-
     info = natives / "Info.plist"
     info_text = info.read_text(encoding="utf-8")
     display_name = '<key>CFBundleDisplayName</key>\n\t<string>Amethyst</string>'
@@ -217,7 +152,7 @@ def main() -> None:
         raise RuntimeError(f"Could not find iOS bundle name in {info}")
     info_text = info_text.replace("org.angelauramc.amethyst", BUNDLE_ID)
     network_description = '<key>NSLocalNetworkUsageDescription</key>\n\t<string>Angel Aura Amethyst uses the local network to find and communicate with AltServer and LAN servers.</string>'
-    network_replacement = '<key>NSLocalNetworkUsageDescription</key>\n\t<string>Neeflow uses the local network for the optional legacy JIT server and Minecraft LAN servers.</string>\n\t<key>NSAppTransportSecurity</key>\n\t<dict>\n\t\t<key>NSAllowsLocalNetworking</key>\n\t\t<true/>\n\t</dict>'
+    network_replacement = '<key>NSLocalNetworkUsageDescription</key>\n\t<string>Neeflow uses the local network for Minecraft LAN multiplayer.</string>\n\t<key>NSAppTransportSecurity</key>\n\t<dict>\n\t\t<key>NSAllowsLocalNetworking</key>\n\t\t<true/>\n\t</dict>'
     if network_replacement not in info_text:
         info_text = replace_once(info_text, network_description, network_replacement, "local network description and local HTTP policy")
     info.write_text(info_text, encoding="utf-8")

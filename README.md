@@ -10,11 +10,11 @@ The launcher is based on AngelAuraMC Amethyst-Android at commit `166af615dbdca1a
 
 ## iOS IPA
 
-The [iOS workflow](.github/workflows/ios-ipa.yml) builds an unsigned sideload IPA when relevant source, interface or asset changes are pushed to `main`; it can also be started manually from GitHub Actions. It checks out the pinned Amethyst-iOS source, opens directly to Neeflow's interface on iPhone, applies Neeflow branding and its app icon, and adds an optional legacy JitStreamer setting in Neeflow's settings. JIT availability depends on the iOS version and signing method. JitStreamer is deprecated; newer iOS versions use Amethyst's supported JIT flow. On iOS, install mod loaders through Amethyst's Profiles screen; game files stay in the app sandbox and individual files can be shared from Neeflow.
+The [iOS workflow](.github/workflows/ios-ipa.yml) builds an unsigned sideload IPA when relevant source, interface or asset changes are pushed to `main`; it can also be started manually from GitHub Actions. It checks out the pinned Amethyst-iOS source, opens directly to Neeflow's interface on iPhone, and applies Neeflow branding and its app icon. JIT is handled by Amethyst's supported iOS providers when the game is launched; availability depends on the iOS version and signing method. Local accounts can install and launch Vanilla versions for single-player and offline-mode servers. On iOS, install mod loaders through Amethyst's Profiles screen; game files stay in the app sandbox and individual files can be shared from Neeflow.
 
 ## Accounts and multiplayer
 
-The APK uses local/offline player profiles only and does not require a Microsoft account or OAuth client ID. Enter a player name in Neeflow's settings; the Android bridge creates and selects the matching local Amethyst account. Single-player and offline-mode servers can be used. Online-mode servers require Microsoft authentication and a Minecraft Java license, which this build does not provide.
+The Android APK and iOS IPA use local/offline player profiles and do not require a Microsoft account or OAuth client ID. Enter a player name in Neeflow's settings; the native bridge creates and selects the matching Amethyst account. Single-player and offline-mode servers can be used. Online-mode servers require Microsoft authentication and a Minecraft Java license, which these builds do not provide.
 
 Minecraft itself is not bundled. Create or select a Vanilla profile in Neeflow and launch it; Amethyst downloads the required game files and libraries from Mojang/Minecraft's official services. Performance and compatibility depend on the device, Minecraft version and renderer.
 

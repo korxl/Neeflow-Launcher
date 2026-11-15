@@ -20,7 +20,6 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
 - (NSString *)jsonString:(NSDictionary *)value;
 - (NSString *)error:(NSString *)message;
 - (NSString *)fetchApi:(NSArray *)arguments;
-- (NSString *)setJitServerAddress:(NSArray *)arguments;
 @end
 
 @interface NeeflowScriptMessageHandler : NSObject <WKScriptMessageHandler>
@@ -53,7 +52,7 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
 
     NSString *bridge =
         @"(function(){if(window.NeeflowAndroid)return;"
-        @"var methods=['getLauncherState','getRuntimeSettings','setRuntimeSetting','saveProfile','selectProfile','deleteProfile','saveUsername','launchGame','installLoader','listGameFiles','openGameFolder','openGameFile','openTouchControls','openRuntimeSettings','getJitServerAddress','setJitServerAddress','getPlatform'];"
+        @"var methods=['getLauncherState','getRuntimeSettings','setRuntimeSetting','saveProfile','selectProfile','deleteProfile','saveUsername','launchGame','installLoader','listGameFiles','openGameFolder','openGameFile','openTouchControls','openRuntimeSettings','getJitStatus','getPlatform'];"
         @"window.NeeflowAndroid={};methods.forEach(function(name){window.NeeflowAndroid[name]=function(){return window.prompt('__NEEFLOW_BRIDGE__',JSON.stringify({method:name,args:Array.prototype.slice.call(arguments)}))}});"
         @"var pending=Object.create(null),next=0;"
         @"window.__neeflowResolveApi=function(message){var resolve=pending[message.id];if(!resolve)return;delete pending[message.id];var body=typeof message.body==='string'?message.body:'{}';var data;try{data=JSON.parse(body)}catch(e){data={error:'Invalid native API response'}};resolve({ok:!data.error,status:data.error?502:200,json:function(){return Promise.resolve(data)},text:function(){return Promise.resolve(body)}})};"
@@ -123,7 +122,7 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.webView evaluateJavaScript:@"window.__neeflowRefreshNativeProfiles&&window.__neeflowRefreshNativeProfiles()" completionHandler:nil];
-    [self.webView evaluateJavaScript:@"window.__neeflowRefreshJitServerStatus&&window.__neeflowRefreshJitServerStatus()" completionHandler:nil];
+    [self.webView evaluateJavaScript:@"window.__neeflowRefreshJitStatus&&window.__neeflowRefreshJitStatus()" completionHandler:nil];
 }
 
 - (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt
@@ -178,11 +177,7 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
         if ([method isEqualToString:@"getLauncherState"]) return [self launcherState];
         if ([method isEqualToString:@"getRuntimeSettings"]) return [self runtimeSettings];
         if ([method isEqualToString:@"setRuntimeSetting"]) return [self setRuntimeSetting:arguments];
-        if ([method isEqualToString:@"getJitServerAddress"]) {
-            id address = getPrefObject(@"general.jitstreamer_server");
-            return [self jsonString:@{@"address": [address isKindOfClass:NSString.class] ? address : @""}];
-        }
-        if ([method isEqualToString:@"setJitServerAddress"]) return [self setJitServerAddress:arguments];
+        if ([method isEqualToString:@"getJitStatus"]) return [self jsonString:@{@"enabled": @(isJITEnabled(false))}];
         if ([method isEqualToString:@"saveProfile"]) return [self saveProfile:arguments];
         if ([method isEqualToString:@"selectProfile"]) return [self selectProfile:arguments];
         if ([method isEqualToString:@"deleteProfile"]) return [self deleteProfile:arguments];
@@ -233,7 +228,9 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
     NSString *versionsDirectory = [[NSString stringWithUTF8String:gameDirectory] stringByAppendingPathComponent:@"versions"];
     NSString *versionDirectory = [versionsDirectory stringByAppendingPathComponent:versionId];
     NSString *metadataPath = [versionDirectory stringByAppendingPathComponent:[versionId stringByAppendingPathExtension:@"json"]];
-    NSDictionary *metadata = [NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:metadataPath] options:NSJSONReadingFragmentsAllowed error:nil];
+    NSData *metadataData = [NSData dataWithContentsOfFile:metadataPath];
+    id parsedMetadata = metadataData.length > 0 ? [NSJSONSerialization JSONObjectWithData:metadataData options:NSJSONReadingFragmentsAllowed error:nil] : nil;
+    NSDictionary *metadata = [parsedMetadata isKindOfClass:NSDictionary.class] ? parsedMetadata : nil;
     NSString *inheritedVersion = [metadata[@"inheritsFrom"] isKindOfClass:NSString.class] ? metadata[@"inheritsFrom"] : nil;
     if (inheritedVersion.length > 0) return inheritedVersion;
     NSRegularExpression *expression = [NSRegularExpression regularExpressionWithPattern:@"\\d{1,2}\\.\\d{1,2}(?:\\.\\d{1,2})?" options:0 error:nil];
@@ -265,21 +262,6 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
                               @"maxAllocation": @(self.maxAllocation),
                               @"javaArgs": getPrefObject(@"java.java_args") ?: @"",
                               @"forceVsync": @YES}];
-}
-
-- (NSString *)setJitServerAddress:(NSArray *)arguments {
-    if (arguments.count < 1 || ![arguments[0] isKindOfClass:NSString.class]) return [self error:@"Invalid JIT server address."];
-    NSString *address = [arguments[0] stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet];
-    if (address.length > 255) return [self error:@"JIT server addresses cannot exceed 255 characters."];
-    if (address.length > 0) {
-        NSString *candidate = [address containsString:@"://"] ? address : [@"http://" stringByAppendingString:address];
-        NSURLComponents *components = [NSURLComponents componentsWithString:candidate];
-        if (!components.host.length || ![@[@"http", @"https"] containsObject:components.scheme.lowercaseString] || components.query.length || components.fragment.length || components.user.length || components.password.length || (components.path.length > 0 && ![components.path isEqualToString:@"/"]) || (components.port && (components.port.integerValue < 1 || components.port.integerValue > 65535))) {
-            return [self error:@"Enter a JIT server host or http(s) URL without a path."];
-        }
-    }
-    setPrefObject(@"general.jitstreamer_server", address);
-    return [self ok:address];
 }
 
 - (NSString *)setRuntimeSetting:(NSArray *)arguments {
@@ -490,66 +472,10 @@ static NSString *const NeeflowBridgePrompt = @"__NEEFLOW_BRIDGE__";
     return [value isKindOfClass:NSDictionary.class] ? value : nil;
 }
 
-- (NSString *)jitServerStatus {
-    id configuredValue = getPrefObject(@"general.jitstreamer_server");
-    NSString *address = [configuredValue isKindOfClass:NSString.class] ? [configuredValue stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet] : @"";
-    if (address.length == 0) return [self jsonString:@{@"configured": @NO, @"reachable": @NO, @"message": @"Адрес JIT-сервера не задан."}];
-    if (![address containsString:@"://"]) address = [@"http://" stringByAppendingString:address];
-
-    NSURLComponents *components = [NSURLComponents componentsWithString:address];
-    if (!components.host.length || ![@[@"http", @"https"] containsObject:components.scheme.lowercaseString] || components.query.length || components.fragment.length || components.user.length || components.password.length || (components.path.length > 0 && ![components.path isEqualToString:@"/"])) {
-        return [self jsonString:@{@"configured": @YES, @"reachable": @NO, @"message": @"Неверный адрес JIT-сервера. Укажи хост или URL без пути."}];
-    }
-
-    NSString *baseURL = components.URL.absoluteString;
-    while ([baseURL hasSuffix:@"/"]) baseURL = [baseURL substringToIndex:baseURL.length - 1];
-    NSURL *versionURL = [NSURL URLWithString:[baseURL stringByAppendingString:@"/version"]];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:versionURL cachePolicy:NSURLRequestReloadIgnoringLocalCacheData timeoutInterval:3];
-    [request setValue:@"text/plain, application/json;q=0.9, */*;q=0.8" forHTTPHeaderField:@"Accept"];
-    NSURLSessionConfiguration *configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
-    configuration.timeoutIntervalForRequest = 3;
-    NSURLSession *session = [NSURLSession sessionWithConfiguration:configuration];
-    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-    __block NSData *responseData = nil;
-    __block NSURLResponse *response = nil;
-    __block NSError *requestError = nil;
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *responseObject, NSError *failure) {
-        responseData = data;
-        response = responseObject;
-        requestError = failure;
-        dispatch_semaphore_signal(semaphore);
-    }];
-    [task resume];
-
-    BOOL completed = dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC)) == 0;
-    BOOL reachable = completed && !requestError && [response isKindOfClass:NSHTTPURLResponse.class] && ((NSHTTPURLResponse *)response).statusCode >= 200 && ((NSHTTPURLResponse *)response).statusCode < 300;
-    if (!completed) [task cancel];
-    [session finishTasksAndInvalidate];
-
-    NSString *version = @"";
-    if (reachable && responseData.length > 0) {
-        NSString *body = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-        version = [body stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet] ?: @"";
-        if (version.length > 80) version = [version substringToIndex:80];
-    }
-    NSString *message = @"Сервер не ответил на /version.";
-    if (reachable) {
-        message = @"Сервер отвечает на /version.";
-    } else if (requestError.localizedDescription.length > 0) {
-        message = requestError.localizedDescription;
-    } else if (!completed) {
-        message = @"Истекло время ожидания ответа сервера.";
-    } else if ([response isKindOfClass:NSHTTPURLResponse.class]) {
-        message = [NSString stringWithFormat:@"Сервер вернул HTTP %ld.", (long)((NSHTTPURLResponse *)response).statusCode];
-    }
-    return [self jsonString:@{@"configured": @YES, @"reachable": @(reachable), @"version": version, @"message": message}];
-}
-
 - (NSString *)fetchApi:(NSArray *)arguments {
     if (arguments.count < 1 || ![arguments[0] isKindOfClass:NSString.class]) return [self error:@"Invalid API route"];
     NSString *route = arguments[0];
     NSError *error = nil;
-    if ([route isEqualToString:@"/api/jit/status"]) return [self jitServerStatus];
     if ([route isEqualToString:@"/api/minecraft/catalog"]) {
         NSDictionary *manifest = [self fetchJSON:@"https://piston-meta.mojang.com/mc/game/version_manifest_v2.json" error:&error];
         if (!manifest) return [self error:error.localizedDescription ?: @"Could not load Mojang's version manifest"];
